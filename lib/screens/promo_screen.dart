@@ -1,0 +1,70 @@
+import 'package:flutter/material.dart';
+
+import '../app/theme.dart';
+import '../widgets/common_widgets.dart';
+
+class PromoScreen extends StatelessWidget {
+  const PromoScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dividerColor = theme.brightness == Brightness.dark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE5E7EB);
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const TopBar(title: 'Promo'),
+            SimpleRow(
+              icon: Icons.confirmation_number_outlined,
+              label: 'Your coupons',
+              onTap: () {},
+            ),
+            Divider(height: 1, color: dividerColor),
+            SimpleRow(
+              icon: Icons.person_add_alt_outlined,
+              label: 'Invite friends',
+              onTap: () {},
+            ),
+            Divider(height: 1, color: dividerColor),
+            const Spacer(),
+            const HomeIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SimpleRow extends StatelessWidget {
+  const SimpleRow({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+      leading: Icon(icon, size: 26),
+      title: Text(
+        label,
+        style: const TextStyle(
+          fontSize: AppTypography.size,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
