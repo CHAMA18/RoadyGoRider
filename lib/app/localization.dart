@@ -116,6 +116,9 @@ class AppStrings {
   static const acceptTermsToContinue = 'acceptTermsToContinue';
   static const failedToSendVerificationCode = 'failedToSendVerificationCode';
   static const phoneNumberHint = 'phoneNumberHint';
+  static const confirmPassword = 'confirmPassword';
+  static const confirmPasswordHint = 'confirmPasswordHint';
+  static const passwordsDoNotMatch = 'passwordsDoNotMatch';
 }
 
 class AppLocalizations {
@@ -320,6 +323,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.failedToSendVerificationCode:
         'Failed to send verification code. Check Firebase setup.',
     AppStrings.phoneNumberHint: 'Enter your mobile number',
+    AppStrings.confirmPassword: 'Confirm password',
+    AppStrings.confirmPasswordHint: 'Re-enter your password',
+    AppStrings.passwordsDoNotMatch: 'Passwords do not match.',
   },
   'Albanian': {
     AppStrings.settings: 'Cilesimet',

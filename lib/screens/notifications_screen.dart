@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 import '../app/localization.dart';
 import '../app/theme.dart';
@@ -9,33 +11,11 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      _Notice(
-        date: 'Mar 12',
-        title: context.tr(AppStrings.happyYouthDay),
-        isNew: true,
-      ),
-      _Notice(
-        date: 'Mar 11',
-        title: context.tr(AppStrings.freeConcertTickets),
-        isNew: true,
-      ),
-      _Notice(date: 'Mar 6', title: context.tr(AppStrings.marchPromos)),
-      _Notice(
-        date: 'Jan 26',
-        title: context.tr(AppStrings.dontAidFraud),
-        isNew: true,
-      ),
-      _Notice(
-        date: 'Dec 9, 2025',
-        title: context.tr(AppStrings.freeTrip),
-        isNew: true,
-      ),
-    ];
     final theme = Theme.of(context);
     final dividerColor = theme.brightness == Brightness.dark
         ? const Color(0xFF1E293B)
         : const Color(0xFFE5E7EB);
+        
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
@@ -44,61 +24,118 @@ class NotificationsScreen extends StatelessWidget {
           children: [
             TopBar(title: context.tr(AppStrings.notifications)),
             Expanded(
-              child: ListView.separated(
-                itemCount: items.length,
-                separatorBuilder: (context, index) =>
-                    Divider(height: 1, color: dividerColor),
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 18,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('notifications')
+                    .orderBy('createdAt', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'An error occurred',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No notifications',
+                        style: const TextStyle(
+                          color: AppColors.slate,
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final docs = snapshot.data!.docs;
+
+                  return ListView.separated(
+                    itemCount: docs.length,
+                    separatorBuilder: (context, index) =>
+                        Divider(height: 1, color: dividerColor),
+                    itemBuilder: (context, index) {
+                      final data = docs[index].data() as Map<String, dynamic>;
+                      
+                      final title = data['title'] as String? ?? 'Notification';
+                      final isNew = data['isNew'] as bool? ?? false;
+                      final createdAt = data['createdAt'];
+                      
+                      DateTime? date;
+                      if (createdAt is Timestamp) {
+                        date = createdAt.toDate();
+                      } else if (createdAt is String) {
+                        date = DateTime.tryParse(createdAt);
+                      }
+                      
+                      String dateStr = '';
+                      if (date != null) {
+                        final now = DateTime.now();
+                        if (date.year == now.year) {
+                          dateStr = DateFormat('MMM d').format(date);
+                        } else {
+                          dateStr = DateFormat('MMM d, yyyy').format(date);
+                        }
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 18,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              children: [
+                                Text(
+                                  dateStr,
+                                  style: const TextStyle(
+                                    color: AppColors.slate,
+                                    fontSize: AppTypography.size,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (isNew)
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.circle,
+                                        color: Colors.red,
+                                        size: 10,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        context.tr(AppStrings.newBadge),
+                                        style: const TextStyle(
+                                          color: AppColors.slate,
+                                          fontSize: AppTypography.size,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
                             Text(
-                              item.date,
+                              title,
                               style: const TextStyle(
-                                color: AppColors.slate,
                                 fontSize: AppTypography.size,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const Spacer(),
-                            if (item.isNew)
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.circle,
-                                    color: Colors.red,
-                                    size: 10,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    context.tr(AppStrings.newBadge),
-                                    style: TextStyle(
-                                      color: AppColors.slate,
-                                      fontSize: AppTypography.size,
-                                    ),
-                                  ),
-                                ],
-                              ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                            fontSize: AppTypography.size,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
               ),
@@ -108,12 +145,4 @@ class NotificationsScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Notice {
-  const _Notice({required this.date, required this.title, this.isNew = false});
-
-  final String date;
-  final String title;
-  final bool isNew;
 }

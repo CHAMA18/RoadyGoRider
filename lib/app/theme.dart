@@ -54,6 +54,7 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: AppColors.snow,
     textTheme: _withUnifiedSize(
       base.textTheme.apply(
+        fontFamily: 'Satoshi',
         bodyColor: AppColors.ink,
         displayColor: AppColors.ink,
       ),
@@ -114,7 +115,11 @@ ThemeData buildDarkAppTheme() {
   return base.copyWith(
     scaffoldBackgroundColor: const Color(0xFF020617),
     textTheme: _withUnifiedSize(
-      base.textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white),
+      base.textTheme.apply(
+        fontFamily: 'Satoshi',
+        bodyColor: Colors.white,
+        displayColor: Colors.white,
+      ),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,

@@ -62,28 +62,73 @@ class GetInTouchScreen extends StatelessWidget {
                       _ContactRow(
                         icon: const _PhoneIcon(),
                         label: context.tr(AppStrings.callUs),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => _ContactDetailScreen(
+                                title: context.tr(AppStrings.callUs),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      _ContactDivider(),
+                      const _ContactDivider(),
                       _ContactRow(
                         icon: const _MailIcon(),
                         label: context.tr(AppStrings.emailUs),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => _ContactDetailScreen(
+                                title: context.tr(AppStrings.emailUs),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      _ContactDivider(),
+                      const _ContactDivider(),
                       _ContactRow(
                         icon: const _InfoIcon(),
                         label: context.tr(AppStrings.getLegalInformation),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => _ContactDetailScreen(
+                                title: context.tr(AppStrings.getLegalInformation),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      _ContactDivider(),
+                      const _ContactDivider(),
                       _ContactRow(
                         icon: const _FacebookIcon(),
                         label: context.tr(AppStrings.facebook),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => _ContactDetailScreen(
+                                title: context.tr(AppStrings.facebook),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      _ContactDivider(),
+                      const _ContactDivider(),
                       _ContactRow(
                         icon: const _InstagramIcon(),
                         label: context.tr(AppStrings.instagram),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => _ContactDetailScreen(
+                                title: context.tr(AppStrings.instagram),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      _ContactDivider(),
+                      const _ContactDivider(),
                     ],
                   ),
                   const Positioned(
@@ -118,16 +163,17 @@ class _ContactDivider extends StatelessWidget {
 }
 
 class _ContactRow extends StatelessWidget {
-  const _ContactRow({required this.icon, required this.label});
+  const _ContactRow({required this.icon, required this.label, this.onTap});
 
   final Widget icon;
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
         child: Row(
@@ -334,4 +380,63 @@ class _InstagramIconPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _ContactDetailScreen extends StatelessWidget {
+  const _ContactDetailScreen({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              margin: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark ? const Color(0xFF475569) : const Color(0xFFE5E7EB),
+                ),
+              ),
+              child: Icon(
+                Icons.arrow_back,
+                color: colorScheme.onSurface,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Text(
+          title,
+          style: TextStyle(
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
 }

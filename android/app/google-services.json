@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "19972814983",
+    "project_id": "n1ygrghaejvpa30gz59v0cdr27e5le",
+    "storage_bucket": "n1ygrghaejvpa30gz59v0cdr27e5le.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19972814983:android:83fb561521efa39109a022",
+        "android_client_info": {
+          "package_name": "roadygo.stackone.main"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB46CJaHVw-rZcnIxfol6G8rAq76-UgKbI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
