@@ -1,8 +1,81 @@
 import 'package:flutter/material.dart';
 
 import 'store_listing_screen.dart';
-
 import '../widgets/common_widgets.dart';
+
+class _RestaurantData {
+  final String title;
+  final String subtitle;
+  final String eta;
+  final String rating;
+  final Color accent;
+  final Color surface;
+  final bool isCuratedOnly;
+
+  const _RestaurantData({
+    required this.title,
+    required this.subtitle,
+    required this.eta,
+    required this.rating,
+    required this.accent,
+    required this.surface,
+    this.isCuratedOnly = false,
+  });
+}
+
+const _allRestaurants = [
+  _RestaurantData(
+    title: 'Flame Grill Social',
+    subtitle: 'Burgers • Bowls • Grill',
+    eta: '12-18 min',
+    rating: '4.9',
+    accent: Color(0xFFF48261),
+    surface: Color(0xFFFFF2ED),
+  ),
+  _RestaurantData(
+    title: 'Copper Pot Kitchen',
+    subtitle: 'Zambian • Soul Food',
+    eta: '15-22 min',
+    rating: '4.8',
+    accent: Color(0xFFFFC033),
+    surface: Color(0xFFFFFBF2),
+  ),
+  _RestaurantData(
+    title: 'Midnight Dough',
+    subtitle: 'Pizza • Sides • Desserts',
+    eta: '18-25 min',
+    rating: '4.7',
+    accent: Color(0xFF2A9D8F),
+    surface: Color(0xFFEFFFFB),
+  ),
+  _RestaurantData(
+    title: 'Taco Haven',
+    subtitle: 'Mexican • Tacos • Burritos',
+    eta: '10-20 min',
+    rating: '4.6',
+    accent: Color(0xFFE76F51),
+    surface: Color(0xFFFDECE8),
+    isCuratedOnly: true,
+  ),
+  _RestaurantData(
+    title: 'Sushi Master',
+    subtitle: 'Japanese • Sushi • Seafood',
+    eta: '20-35 min',
+    rating: '4.9',
+    accent: Color(0xFF8338EC),
+    surface: Color(0xFFF3E8FD),
+    isCuratedOnly: true,
+  ),
+  _RestaurantData(
+    title: 'Green Bowl',
+    subtitle: 'Healthy • Salads • Vegan',
+    eta: '15-25 min',
+    rating: '4.8',
+    accent: Color(0xFF38B000),
+    surface: Color(0xFFEAF8E6),
+    isCuratedOnly: true,
+  ),
+];
 
 class FoodScreen extends StatefulWidget {
   const FoodScreen({super.key});
@@ -12,46 +85,49 @@ class FoodScreen extends StatefulWidget {
 }
 
 class _FoodScreenState extends State<FoodScreen> {
-  bool _showAllCurated = false;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final card = isDark ? const Color(0xFF1E293B) : Colors.white;
+
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF4F5F7),
       body: Stack(
         children: [
-            Positioned(
-              top: -120,
-              left: -60,
-              child: _BlurBubble(
-                color: const Color(0xFFFFD36B),
-                size: 240,
-                opacity: isDark ? 0.08 : 0.22,
-              ),
+          // Background blobs
+          Positioned(
+            top: -100,
+            left: -80,
+            child: _BlurBubble(
+              color: const Color(0xFFFDF0CD),
+              size: 280,
+              opacity: isDark ? 0.05 : 0.8,
             ),
-            Positioned(
-              top: 120,
-              right: -80,
-              child: _BlurBubble(
-                color: const Color(0xFFFF7A59),
-                size: 260,
-                opacity: isDark ? 0.10 : 0.18,
-              ),
+          ),
+          Positioned(
+            top: 80,
+            right: -100,
+            child: _BlurBubble(
+              color: const Color(0xFFFCE1D5),
+              size: 300,
+              opacity: isDark ? 0.05 : 0.7,
             ),
-            Column(
+          ),
+          SafeArea(
+            bottom: false,
+            child: Column(
               children: [
+                // Header
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _FoodCircleButton(
                         icon: Icons.arrow_back_rounded,
                         onTap: () => Navigator.of(context).maybePop(),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,248 +139,126 @@ class _FoodScreenState extends State<FoodScreen> {
                                 fontSize: 32,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -1,
+                                height: 1.1,
                               ),
                             ),
-                            const SizedBox(height: 3),
+                            const SizedBox(height: 4),
                             Text(
-                              'Exceptional meals delivered around Lusaka in minutes.',
+                              'Exceptional meals delivered around\nLusaka in minutes.',
                               style: TextStyle(
                                 color: isDark
                                     ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF64748B),
-                                fontSize: 14,
+                                    : const Color(0xFF5E6F88),
+                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
+                                height: 1.3,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      _FoodCircleButton(icon: Icons.tune_rounded, onTap: () {}),
+                      _FoodCircleButton(
+                        icon: Icons.tune_rounded,
+                        onTap: () {},
+                      ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 24),
+                // Scrollable Content
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                     children: [
-                      const _SearchFoodBar(),
-                      const SizedBox(height: 18),
-                      const _FeaturedFoodCard(),
-                      const SizedBox(height: 22),
-                      _SectionHeader(
-                        title: 'Curated for you',
-                        trailing: _showAllCurated ? 'See less' : 'See all',
-                        onTrailingTap: () {
-                          setState(() {
-                            _showAllCurated = !_showAllCurated;
-                          });
-                        },
+                      const _HeroCard(),
+                      const SizedBox(height: 32),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Curated for you',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {},
+                            child: const Text(
+                              'See all',
+                              style: TextStyle(
+                                color: Color(0xFFE25916),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 16),
                       SizedBox(
-                        height: 42,
+                        height: 44,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
+                          clipBehavior: Clip.none,
                           children: const [
-                            _CuisineChip(
+                            _CategoryChip(
                               label: 'Trending',
-                              selected: true,
                               icon: Icons.auto_awesome_rounded,
+                              isSelected: true,
                             ),
-                            SizedBox(width: 10),
-                            _CuisineChip(
+                            SizedBox(width: 12),
+                            _CategoryChip(
                               label: 'Burgers',
                               icon: Icons.lunch_dining_rounded,
                             ),
-                            SizedBox(width: 10),
-                            _CuisineChip(
+                            SizedBox(width: 12),
+                            _CategoryChip(
                               label: 'Local',
-                              icon: Icons.rice_bowl_rounded,
+                              icon: Icons.location_on_rounded,
                             ),
-                            SizedBox(width: 10),
-                            _CuisineChip(
+                            SizedBox(width: 12),
+                            _CategoryChip(
                               label: 'Pizza',
                               icon: Icons.local_pizza_rounded,
                             ),
-                            SizedBox(width: 10),
-                            _CuisineChip(
-                              label: 'Desserts',
-                              icon: Icons.icecream_rounded,
-                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      const _RestaurantCard(
-                        title: 'Flame Grill Social',
-                        subtitle: 'Burgers • Bowls • Grill',
-                        eta: '12-18 min',
-                        rating: '4.9',
-                        accent: Color(0xFFFF7A59),
-                        surface: Color(0xFFFFF4EF),
-                      ),
-                      const SizedBox(height: 14),
-                      const _RestaurantCard(
-                        title: 'Copper Pot Kitchen',
-                        subtitle: 'Zambian • Soul Food',
-                        eta: '15-22 min',
-                        rating: '4.8',
-                        accent: Color(0xFFFFB703),
-                        surface: Color(0xFFFFF7E1),
-                      ),
-                      const SizedBox(height: 14),
-                      const _RestaurantCard(
-                        title: 'Midnight Dough',
-                        subtitle: 'Pizza • Sides • Desserts',
-                        eta: '18-25 min',
-                        rating: '4.7',
-                        accent: Color(0xFF2A9D8F),
-                        surface: Color(0xFFEFFBF8),
-                      ),
-                      if (_showAllCurated) ...[
-                        const SizedBox(height: 14),
-                        const _RestaurantCard(
-                          title: 'Taco Haven',
-                          subtitle: 'Mexican • Tacos • Burritos',
-                          eta: '10-20 min',
-                          rating: '4.6',
-                          accent: Color(0xFFE76F51),
-                          surface: Color(0xFFFDECE8),
-                        ),
-                        const SizedBox(height: 14),
-                        const _RestaurantCard(
-                          title: 'Sushi Master',
-                          subtitle: 'Japanese • Sushi • Seafood',
-                          eta: '20-35 min',
-                          rating: '4.9',
-                          accent: Color(0xFF8338EC),
-                          surface: Color(0xFFF3E8FD),
-                        ),
-                        const SizedBox(height: 14),
-                        const _RestaurantCard(
-                          title: 'Green Bowl',
-                          subtitle: 'Healthy • Salads • Vegan',
-                          eta: '15-25 min',
-                          rating: '4.8',
-                          accent: Color(0xFF38B000),
-                          surface: Color(0xFFEAF8E6),
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-                      _SectionHeader(
-                        title: 'Quick reorder',
-                        trailing: 'Last 30 days',
-                      ),
-                      const SizedBox(height: 14),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const StoreListingScreen(
-                                title: 'Flame Grill Social',
-                                subtitle: 'Burgers • Bowls • Grill',
-                                eta: '12-18 min',
-                                rating: '4.9',
-                                accent: Color(0xFFFF7A59),
-                                surface: Color(0xFFFFF4EF),
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(18),
-                        decoration: BoxDecoration(
-                          color: card,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF1E293B)
-                                : const Color(0xFFE7ECF2),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 62,
-                              height: 62,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFFFEDD5),
-                                    Color(0xFFFFF7ED),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                      const SizedBox(height: 24),
+                      ..._allRestaurants
+                          .where((r) => !r.isCuratedOnly)
+                          .map((r) => Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => StoreListingScreen(
+                                          title: r.title,
+                                          subtitle: r.subtitle,
+                                          eta: r.eta,
+                                          rating: r.rating,
+                                          accent: r.accent,
+                                          surface: r.surface,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: _RestaurantCard(data: r),
                                 ),
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: const Icon(
-                                Icons.ramen_dining_rounded,
-                                color: Color(0xFFD94F0B),
-                                size: 32,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Chicken bowl combo',
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onSurface,
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Flame Grill Social • Ordered 3 times',
-                                    style: TextStyle(
-                                      color: isDark
-                                          ? const Color(0xFF94A3B8)
-                                          : const Color(0xFF64748B),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF25E1C),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Text(
-                                'Order',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
+                              )),
                     ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: HomeIndicator(),
-                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -322,23 +276,28 @@ class _FoodCircleButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 54,
-        height: 54,
+        width: 52,
+        height: 52,
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFE7ECF2),
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.14 : 0.05),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Icon(icon, color: theme.colorScheme.onSurface, size: 24),
+        child: Icon(
+          icon,
+          color: theme.colorScheme.onSurface,
+          size: 22,
+        ),
       ),
     );
   }
@@ -368,121 +327,65 @@ class _BlurBubble extends StatelessWidget {
   }
 }
 
-class _SearchFoodBar extends StatelessWidget {
-  const _SearchFoodBar();
+class _HeroCard extends StatelessWidget {
+  const _HeroCard();
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE7ECF2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.search_rounded,
-            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            'Search dishes, stores or cravings',
-            style: TextStyle(
-              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeaturedFoodCard extends StatelessWidget {
-  const _FeaturedFoodCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF22140D), Color(0xFF4A1F0E), Color(0xFFF25E1C)],
-          stops: [0.0, 0.52, 1.0],
+          colors: [Color(0xFF3E1D0D), Color(0xFFD65814)],
+          stops: [0.1, 1.0],
         ),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(28),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
+            flex: 6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    'CHEF\'S SPOTLIGHT',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.8,
-                    ),
+                const Text(
+                  'Late-night comfort\nfood,\ncrafted like a\npremium drop.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    height: 1.1,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Late-night comfort food,\ncrafted like a premium drop.',
+                Text(
+                  'Fresh kitchens. Smart curation.\nDelivery that feels concierge-\nlevel.',
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w900,
-                    height: 1.05,
-                    letterSpacing: -0.8,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Fresh kitchens. Smart curation. Delivery that feels concierge-level.',
-                  style: TextStyle(
-                    color: Color(0xFFFFE8DE),
-                    fontSize: 14,
+                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    height: 1.35,
+                    height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 18,
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Explore featured kitchens',
                     style: TextStyle(
-                      color: theme.colorScheme.onSurface,
-                      fontSize: 14,
+                      color: Color(0xFF1E1E1E),
+                      fontSize: 13,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -490,109 +393,91 @@ class _FeaturedFoodCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          const _FoodArtPlate(),
+          Expanded(
+            flex: 4,
+            child: Center(
+              child: const _BurgerIllustration(),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _FoodArtPlate extends StatelessWidget {
-  const _FoodArtPlate();
+class _BurgerIllustration extends StatelessWidget {
+  const _BurgerIllustration();
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 116,
-      height: 156,
+      width: 120,
+      height: 140,
       child: Stack(
         clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
+          // Yellow background pill
           Positioned(
-            right: 6,
+            right: 0,
             bottom: 0,
-            child: Container(
-              width: 110,
-              height: 110,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.10),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Positioned(
-            right: 16,
-            top: 6,
             child: Transform.rotate(
-              angle: -0.12,
+              angle: 0.2,
               child: Container(
-                width: 74,
-                height: 106,
+                width: 70,
+                height: 120,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFFFE8A3), Color(0xFFFFB347)],
-                  ),
+                  color: const Color(0xFFFFE082),
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),
           ),
+          // White circle
           Positioned(
             left: 0,
-            bottom: 4,
+            bottom: 10,
             child: Container(
-              width: 104,
-              height: 104,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.12),
-                    blurRadius: 18,
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              child: Stack(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Positioned(
-                    left: 18,
-                    top: 22,
-                    child: Container(
-                      width: 66,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF9A3D),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
+                  Container(
+                    width: 56,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF4A261),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                  Positioned(
-                    left: 20,
-                    top: 42,
-                    child: Container(
-                      width: 60,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF7A4B27),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: 64,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFC76930),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                  Positioned(
-                    left: 24,
-                    top: 58,
-                    child: Container(
-                      width: 54,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2A9D8F),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: 54,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2A9D8F),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
                 ],
@@ -605,87 +490,46 @@ class _FoodArtPlate extends StatelessWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    required this.trailing,
-    this.onTrailingTap,
-  });
-
-  final String title;
-  final String trailing;
-  final VoidCallback? onTrailingTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 21,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: onTrailingTap,
-          child: Text(
-            trailing,
-            style: TextStyle(
-              color: isDark ? const Color(0xFFFFB089) : const Color(0xFFD94F0B),
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CuisineChip extends StatelessWidget {
-  const _CuisineChip({
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
     required this.label,
     required this.icon,
-    this.selected = false,
+    this.isSelected = false,
   });
 
   final String label;
   final IconData icon;
-  final bool selected;
+  final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: selected
-            ? const Color(0xFFF25E1C)
-            : Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: isSelected ? const Color(0xFFE8581E) : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(999),
         border: Border.all(
-          color: selected ? const Color(0xFFF25E1C) : const Color(0xFFE7ECF2),
+          color: isSelected
+              ? const Color(0xFFE8581E)
+              : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          width: 1,
         ),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
             size: 18,
-            color: selected ? Colors.white : const Color(0xFFD94F0B),
+            color: isSelected ? Colors.white : const Color(0xFFE8581E),
           ),
           const SizedBox(width: 8),
           Text(
             label,
             style: TextStyle(
-              color: selected
-                  ? Colors.white
-                  : Theme.of(context).colorScheme.onSurface,
+              color: isSelected ? Colors.white : theme.colorScheme.onSurface,
               fontSize: 14,
               fontWeight: FontWeight.w700,
             ),
@@ -697,75 +541,56 @@ class _CuisineChip extends StatelessWidget {
 }
 
 class _RestaurantCard extends StatelessWidget {
-  const _RestaurantCard({
-    required this.title,
-    required this.subtitle,
-    required this.eta,
-    required this.rating,
-    required this.accent,
-    required this.surface,
-  });
+  const _RestaurantCard({required this.data});
 
-  final String title;
-  final String subtitle;
-  final String eta;
-  final String rating;
-  final Color accent;
-  final Color surface;
+  final _RestaurantData data;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.05),
-            blurRadius: 22,
-            offset: const Offset(0, 12),
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.03),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 92,
-            height: 92,
+            width: 86,
+            height: 86,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [surface, Colors.white],
-              ),
-              borderRadius: BorderRadius.circular(22),
+              color: data.surface,
+              borderRadius: BorderRadius.circular(20),
             ),
-            child: Stack(
-              alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Positioned(
-                  top: 16,
-                  child: Container(
-                    width: 56,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: accent,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+                Container(
+                  width: 32,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: data.accent,
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
-                Positioned(
-                  bottom: 20,
-                  child: Container(
-                    width: 64,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.75),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
+                const SizedBox(height: 6),
+                Container(
+                  width: 48,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: data.accent,
+                    borderRadius: BorderRadius.circular(999),
                   ),
                 ),
               ],
@@ -777,10 +602,11 @@ class _RestaurantCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Text(
-                        title,
+                        data.title,
                         style: TextStyle(
                           color: theme.colorScheme.onSurface,
                           fontSize: 18,
@@ -791,26 +617,26 @@ class _RestaurantCard extends StatelessWidget {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                        horizontal: 8,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF1E8),
-                        borderRadius: BorderRadius.circular(999),
+                        color: const Color(0xFFFFF2EB),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(
                             Icons.star_rounded,
-                            color: Color(0xFFD94F0B),
-                            size: 16,
+                            color: Color(0xFFE8581E),
+                            size: 14,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            rating,
+                            data.rating,
                             style: const TextStyle(
-                              color: Color(0xFFD94F0B),
+                              color: Color(0xFFE8581E),
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
                             ),
@@ -820,66 +646,61 @@ class _RestaurantCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
-                  subtitle,
+                  data.subtitle,
                   style: TextStyle(
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
-                    fontSize: 14,
+                    color:
+                        isDark ? const Color(0xFF94A3B8) : const Color(0xFF5E6F88),
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 7,
+                        horizontal: 8,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? const Color(0xFF111827)
+                            ? const Color(0xFF1E293B)
                             : const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.access_time_filled_rounded,
-                            size: 15,
-                            color: accent,
+                            size: 14,
+                            color: data.accent,
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 4),
                           Text(
-                            eta,
+                            data.eta,
                             style: TextStyle(
                               color: theme.colorScheme.onSurface,
-                              fontSize: 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Text(
-                      'Free delivery above ZMW 120',
-                      softWrap: true,
-                      style: TextStyle(
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Free delivery above ZMW 120',
+                  style: TextStyle(
+                    color:
+                        isDark ? const Color(0xFF94A3B8) : const Color(0xFF5E6F88),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),

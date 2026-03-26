@@ -25,6 +25,8 @@ class AppStrings {
   static const enterPhoneNumberToStart = 'enterPhoneNumberToStart';
   static const iAgreeTo = 'iAgreeTo';
   static const termsAndConditions = 'termsAndConditions';
+  static const privacyPolicy = 'privacyPolicy';
+  static const aboutUs = 'aboutUs';
   static const requestCode = 'requestCode';
   static const phoneNumber = 'phoneNumber';
   static const codeSentTo = 'codeSentTo';
@@ -132,10 +134,16 @@ class AppLocalizations {
 
   String text(String key, {Map<String, String> params = const {}}) {
     final languageKey = _resolveLanguage(language);
-    final template =
-        _translations[languageKey]?[key] ??
-        _translations['English']![key] ??
-        key;
+    final langMap = _translations[languageKey];
+    final fallbackMap = _translations['English'];
+
+    String template = key;
+    if (langMap != null && langMap[key] != null) {
+      template = langMap[key]!;
+    } else if (fallbackMap != null && fallbackMap[key] != null) {
+      template = fallbackMap[key]!;
+    }
+
     return _interpolate(template, params);
   }
 
@@ -223,6 +231,8 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.enterPhoneNumberToStart: 'Enter your phone number to start',
     AppStrings.iAgreeTo: 'I agree to ',
     AppStrings.termsAndConditions: 'Terms and Conditions',
+    AppStrings.privacyPolicy: 'Privacy Policy',
+    AppStrings.aboutUs: 'About Us',
     AppStrings.requestCode: 'Request code',
     AppStrings.phoneNumber: 'Phone number',
     AppStrings.codeSentTo: 'Code sent via SMS, WhatsApp, or Viber to',

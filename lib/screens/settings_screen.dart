@@ -57,31 +57,68 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            _SettingsRow(
-              icon: const _AppearanceIcon(),
-              label: context.tr(AppStrings.appAppearance),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AppAppearanceScreen()),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _SettingsRow(
+                      icon: const _AppearanceIcon(),
+                      label: context.tr(AppStrings.appAppearance),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AppAppearanceScreen()),
+                      ),
+                    ),
+                    _SettingsRow(
+                      icon: const _LanguageIcon(),
+                      label: context.tr(AppStrings.language),
+                      subtitle: themeScope.selectedLanguage,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const LanguageScreen()),
+                      ),
+                    ),
+                    _SettingsRow(
+                      icon: const _MessageIcon(),
+                      label: context.tr(AppStrings.getInTouch),
+                      topBorder: true,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const GetInTouchScreen()),
+                      ),
+                    ),
+                    _SettingsRow(
+                      icon: const _StandardIcon(Icons.privacy_tip_outlined),
+                      label: context.tr(AppStrings.privacyPolicy),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => _StaticContentScreen(
+                          title: context.tr(AppStrings.privacyPolicy),
+                          contentKey: 'privacy',
+                        )),
+                      ),
+                    ),
+                    _SettingsRow(
+                      icon: const _StandardIcon(Icons.description_outlined),
+                      label: context.tr(AppStrings.termsAndConditions),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => _StaticContentScreen(
+                          title: context.tr(AppStrings.termsAndConditions),
+                          contentKey: 'terms',
+                        )),
+                      ),
+                    ),
+                    _SettingsRow(
+                      icon: const _StandardIcon(Icons.info_outline_rounded),
+                      label: context.tr(AppStrings.aboutUs),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => _StaticContentScreen(
+                          title: context.tr(AppStrings.aboutUs),
+                          contentKey: 'about',
+                        )),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               ),
             ),
-            _SettingsRow(
-              icon: const _LanguageIcon(),
-              label: context.tr(AppStrings.language),
-              subtitle: themeScope.selectedLanguage,
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const LanguageScreen())),
-            ),
-            _SettingsRow(
-              icon: const _MessageIcon(),
-              label: context.tr(AppStrings.getInTouch),
-              topBorder: true,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const GetInTouchScreen()),
-              ),
-            ),
-            const Spacer(),
-            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -330,4 +367,155 @@ class _MessageIconPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _StandardIcon extends StatelessWidget {
+  const _StandardIcon(this.iconData);
+
+  final IconData iconData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      iconData,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFFCBD5E1)
+          : const Color(0xFF6B5B57),
+      size: 24,
+    );
+  }
+}
+
+class _StaticContentScreen extends StatelessWidget {
+  const _StaticContentScreen({required this.title, required this.contentKey});
+  final String title;
+  final String contentKey;
+
+  String _getContent() {
+    switch (contentKey) {
+      case 'terms':
+        return '''1. Acceptance of Terms
+By accessing and using this application, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.
+
+2. User Registration
+To use certain features of the application, you may be required to register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.
+
+3. Privacy Policy
+Your privacy is very important to us. Our Privacy Policy explains how we collect, use, protect, and when we share personal information and other data with third parties.
+
+4. User Conduct
+You agree not to use the application in any way that violates any applicable local, national, or international law or regulation. You also agree not to:
+• Impersonate any person or entity.
+• Interfere with or disrupt the operation of the application.
+• Attempt to gain unauthorized access to any part of the application.
+• Transmit any viruses or other harmful computer code.
+
+5. Intellectual Property
+All content included in this application, such as text, graphics, logos, images, and software, is the property of the app owners or its content suppliers and protected by international copyright laws.
+
+6. Limitation of Liability
+In no event shall the application owners, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the application.
+
+7. Changes to Terms
+We reserve the right, at our sole discretion, to modify or replace these Terms at any time. By continuing to access or use our application after those revisions become effective, you agree to be bound by the revised terms.
+
+8. Contact Information
+If you have any questions about these Terms, please contact us via the provided support channels.''';
+      case 'privacy':
+        return '''1. Information Collection
+We collect information you provide directly to us when you create an account, update your profile, use our services, or communicate with us.
+
+2. Information Usage
+We use the information we collect to provide, maintain, and improve our services, to process transactions, and to send you related information.
+
+3. Data Sharing
+We do not share your personal information with third parties except as described in this privacy policy or with your consent.
+
+4. Security
+We take reasonable measures to help protect information about you from loss, theft, misuse and unauthorized access, disclosure, alteration and destruction.''';
+      case 'about':
+        return '''Welcome to our application!
+
+We are dedicated to providing the best experience possible for our users. Our team has worked tirelessly to build a platform that is secure, fast, and easy to use.
+
+Mission Statement:
+To innovate and bring convenience to your daily life through cutting-edge technology and user-centric design.
+
+Thank you for choosing our app. We are constantly updating and improving our features, so stay tuned for more!''';
+      default:
+        return 'Content for $title will be displayed here.';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).maybePop(),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF475569)
+                          : const Color(0xFFD1D5DB),
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: colorScheme.onSurface,
+                    size: 25,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 34, 24, 26),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontSize: 31,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.8,
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                  child: Text(
+                    _getContent(),
+                    style: TextStyle(
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF4B5563),
+                      fontSize: 15,
+                      height: 1.6,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

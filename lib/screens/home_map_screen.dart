@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../app/localization.dart';
@@ -927,32 +928,116 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
           ),
           const SizedBox(height: 14),
           Container(
+            height: 48,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
-                  ? const Color(0xFF111827)
-                  : const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(16),
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.05),
+                width: 1,
+              ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _DrawerSelectorButton(
-                    label: context.tr(AppStrings.account),
-                    selected: _section == _DrawerSection.account,
-                    onTap: () =>
-                        setState(() => _section = _DrawerSection.account),
-                  ),
-                ),
-                Expanded(
-                  child: _DrawerSelectorButton(
-                    label: context.tr(AppStrings.activity),
-                    selected: _section == _DrawerSection.activity,
-                    onTap: () =>
-                        setState(() => _section = _DrawerSection.activity),
-                  ),
-                ),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final tabWidth = constraints.maxWidth / 2;
+                return Stack(
+                  children: [
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      left: _section == _DrawerSection.account ? 0 : tabWidth,
+                      top: 0,
+                      bottom: 0,
+                      width: tabWidth,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? const Color(0xFF334155)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              setState(() => _section = _DrawerSection.account);
+                            },
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  color: _section == _DrawerSection.account
+                                      ? (theme.brightness == Brightness.dark
+                                          ? Colors.white
+                                          : AppColors.slate)
+                                      : (theme.brightness == Brightness.dark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B)),
+                                  fontSize: 14,
+                                  fontWeight: _section == _DrawerSection.account
+                                      ? FontWeight.w700
+                                      : FontWeight.w600,
+                                ),
+                                child: Text(context.tr(AppStrings.account)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              setState(() => _section = _DrawerSection.activity);
+                            },
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 200),
+                                style: TextStyle(
+                                  color: _section == _DrawerSection.activity
+                                      ? (theme.brightness == Brightness.dark
+                                          ? Colors.white
+                                          : AppColors.slate)
+                                      : (theme.brightness == Brightness.dark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B)),
+                                  fontSize: 14,
+                                  fontWeight: _section == _DrawerSection.activity
+                                      ? FontWeight.w700
+                                      : FontWeight.w600,
+                                ),
+                                child: Text(context.tr(AppStrings.activity)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 18),
@@ -1015,59 +1100,6 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
   }
 }
 
-class _DrawerSelectorButton extends StatelessWidget {
-  const _DrawerSelectorButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: selected ? colorScheme.surface : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: theme.brightness == Brightness.dark ? 0.2 : 0.06,
-                    ),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected
-                ? colorScheme.onSurface
-                : (theme.brightness == Brightness.dark
-                      ? const Color(0xFF94A3B8)
-                      : AppColors.slate),
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class DrawerRow extends StatelessWidget {
   const DrawerRow({
