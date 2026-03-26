@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../app/app.dart';
+import '../app/localization.dart';
 import 'app_appearance_screen.dart';
 import 'get_in_touch_screen.dart';
+import 'language_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeScope = RoadyGoRiderApp.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
@@ -44,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(24, 34, 24, 26),
               child: Text(
-                'Settings',
+                context.tr(AppStrings.settings),
                 style: TextStyle(
                   color: colorScheme.onSurface,
                   fontSize: 31,
@@ -55,14 +59,22 @@ class SettingsScreen extends StatelessWidget {
             ),
             _SettingsRow(
               icon: const _AppearanceIcon(),
-              label: 'App appearance',
+              label: context.tr(AppStrings.appAppearance),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AppAppearanceScreen()),
               ),
             ),
             _SettingsRow(
+              icon: const _LanguageIcon(),
+              label: context.tr(AppStrings.language),
+              subtitle: themeScope.selectedLanguage,
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const LanguageScreen())),
+            ),
+            _SettingsRow(
               icon: const _MessageIcon(),
-              label: 'Get in touch',
+              label: context.tr(AppStrings.getInTouch),
               topBorder: true,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const GetInTouchScreen()),
@@ -82,12 +94,14 @@ class _SettingsRow extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.subtitle,
     this.topBorder = false,
   });
 
   final Widget icon;
   final String label;
   final VoidCallback onTap;
+  final String? subtitle;
   final bool topBorder;
 
   @override
@@ -114,14 +128,33 @@ class _SettingsRow extends StatelessWidget {
               SizedBox(width: 26, height: 26, child: icon),
               const SizedBox(width: 16),
               Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF9CA3AF),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               Icon(
@@ -203,6 +236,65 @@ class _MessageIcon extends StatelessWidget {
       ),
     );
   }
+}
+
+class _LanguageIcon extends StatelessWidget {
+  const _LanguageIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _LanguageIconPainter(
+        Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFFCBD5E1)
+            : const Color(0xFF6B5B57),
+      ),
+    );
+  }
+}
+
+class _LanguageIconPainter extends CustomPainter {
+  _LanguageIconPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.7;
+
+    final fill = Paint()
+      ..color = color.withValues(alpha: 0.08)
+      ..style = PaintingStyle.fill;
+
+    final globe = Rect.fromCircle(
+      center: Offset(size.width / 2, 13),
+      radius: 9,
+    );
+    canvas.drawOval(globe, fill);
+    canvas.drawOval(globe, stroke);
+    canvas.drawLine(const Offset(4, 13), const Offset(22, 13), stroke);
+    canvas.drawArc(globe, 1.57, 3.14, false, stroke);
+    canvas.drawArc(globe, 4.71, 3.14, false, stroke);
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(13, 13), width: 8, height: 18),
+      stroke,
+    );
+
+    final path = Path()
+      ..moveTo(7, 23)
+      ..lineTo(19, 23)
+      ..moveTo(11, 19.8)
+      ..lineTo(9.3, 23)
+      ..moveTo(15, 19.8)
+      ..lineTo(16.7, 23);
+    canvas.drawPath(path, stroke);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _MessageIconPainter extends CustomPainter {

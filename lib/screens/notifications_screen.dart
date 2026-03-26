@@ -1,21 +1,37 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
-  static const _items = [
-    _Notice(date: 'Mar 12', title: 'Happy Youth Day!', isNew: true),
-    _Notice(date: 'Mar 11', title: 'Want Free Concert Tickets?', isNew: true),
-    _Notice(date: 'Mar 6', title: 'March Promos'),
-    _Notice(date: 'Jan 26', title: 'Don\'t Aid Fraud', isNew: true),
-    _Notice(date: 'Dec 9, 2025', title: 'Win A Free Trip!', isNew: true),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final items = [
+      _Notice(
+        date: 'Mar 12',
+        title: context.tr(AppStrings.happyYouthDay),
+        isNew: true,
+      ),
+      _Notice(
+        date: 'Mar 11',
+        title: context.tr(AppStrings.freeConcertTickets),
+        isNew: true,
+      ),
+      _Notice(date: 'Mar 6', title: context.tr(AppStrings.marchPromos)),
+      _Notice(
+        date: 'Jan 26',
+        title: context.tr(AppStrings.dontAidFraud),
+        isNew: true,
+      ),
+      _Notice(
+        date: 'Dec 9, 2025',
+        title: context.tr(AppStrings.freeTrip),
+        isNew: true,
+      ),
+    ];
     final theme = Theme.of(context);
     final dividerColor = theme.brightness == Brightness.dark
         ? const Color(0xFF1E293B)
@@ -26,14 +42,14 @@ class NotificationsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TopBar(title: 'Notifications'),
+            TopBar(title: context.tr(AppStrings.notifications)),
             Expanded(
               child: ListView.separated(
-                itemCount: _items.length,
-                separatorBuilder: (_, __) =>
+                itemCount: items.length,
+                separatorBuilder: (context, index) =>
                     Divider(height: 1, color: dividerColor),
                 itemBuilder: (context, index) {
-                  final item = _items[index];
+                  final item = items[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -55,7 +71,7 @@ class NotificationsScreen extends StatelessWidget {
                             const Spacer(),
                             if (item.isNew)
                               Row(
-                                children: const [
+                                children: [
                                   Icon(
                                     Icons.circle,
                                     color: Colors.red,
@@ -63,7 +79,7 @@ class NotificationsScreen extends StatelessWidget {
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'New',
+                                    context.tr(AppStrings.newBadge),
                                     style: TextStyle(
                                       color: AppColors.slate,
                                       fontSize: AppTypography.size,

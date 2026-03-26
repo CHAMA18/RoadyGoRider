@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/rider_experience.dart';
 import '../widgets/common_widgets.dart';
+import 'localization.dart';
 import 'theme.dart';
 
 class RoadyGoRiderApp extends StatefulWidget {
@@ -21,15 +22,20 @@ class RoadyGoRiderApp extends StatefulWidget {
 
 class _RoadyGoRiderAppState extends State<RoadyGoRiderApp> {
   ThemeMode _themeMode = ThemeMode.light;
+  String _selectedLanguage = 'English';
 
   void _setThemeMode(ThemeMode mode) {
     setState(() => _themeMode = mode);
   }
 
+  void _setSelectedLanguage(String language) {
+    setState(() => _selectedLanguage = language);
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = MaterialApp(
-      title: 'RoadyGo Rider',
+      title: AppLocalizations(_selectedLanguage).text(AppStrings.appTitle),
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       darkTheme: buildDarkAppTheme(),
@@ -47,6 +53,8 @@ class _RoadyGoRiderAppState extends State<RoadyGoRiderApp> {
     return RoadyGoThemeScope(
       themeMode: _themeMode,
       setThemeMode: _setThemeMode,
+      selectedLanguage: _selectedLanguage,
+      setSelectedLanguage: _setSelectedLanguage,
       child: app,
     );
   }
@@ -57,15 +65,20 @@ class RoadyGoThemeScope extends InheritedWidget {
     super.key,
     required this.themeMode,
     required this.setThemeMode,
+    required this.selectedLanguage,
+    required this.setSelectedLanguage,
     required super.child,
   });
 
   final ThemeMode themeMode;
   final ValueChanged<ThemeMode> setThemeMode;
+  final String selectedLanguage;
+  final ValueChanged<String> setSelectedLanguage;
 
   @override
   bool updateShouldNotify(RoadyGoThemeScope oldWidget) =>
-      themeMode != oldWidget.themeMode;
+      themeMode != oldWidget.themeMode ||
+      selectedLanguage != oldWidget.selectedLanguage;
 }
 
 class _WebLockedViewport extends StatelessWidget {

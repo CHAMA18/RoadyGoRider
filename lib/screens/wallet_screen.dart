@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -18,7 +19,10 @@ class WalletScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TopBar(title: 'Wallet', trailing: 'About wallet'),
+            TopBar(
+              title: context.tr(AppStrings.wallet),
+              trailing: context.tr(AppStrings.aboutWallet),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
               child: Container(
@@ -31,12 +35,12 @@ class WalletScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Spacer(),
                     Icon(Icons.add, color: Colors.white, size: 30),
                     SizedBox(height: 10),
                     Text(
-                      'Top up',
+                      context.tr(AppStrings.topUp),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: AppTypography.size,
@@ -52,15 +56,15 @@ class WalletScreen extends StatelessWidget {
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               leading: const Icon(Icons.savings_outlined, size: 28),
-              title: const Text(
-                'Default tips',
+              title: Text(
+                context.tr(AppStrings.defaultTips),
                 style: TextStyle(
                   fontSize: AppTypography.size,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              trailing: const Text(
-                'No tip',
+              trailing: Text(
+                context.tr(AppStrings.noTip),
                 style: TextStyle(
                   color: AppColors.slate,
                   fontSize: AppTypography.size,

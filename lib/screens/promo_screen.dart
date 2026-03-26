@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -18,16 +19,16 @@ class PromoScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TopBar(title: 'Promo'),
+            TopBar(title: context.tr(AppStrings.promo)),
             SimpleRow(
               icon: Icons.confirmation_number_outlined,
-              label: 'Your coupons',
+              label: context.tr(AppStrings.yourCoupons),
               onTap: () {},
             ),
             Divider(height: 1, color: dividerColor),
             SimpleRow(
               icon: Icons.person_add_alt_outlined,
-              label: 'Invite friends',
+              label: context.tr(AppStrings.inviteFriends),
               onTap: () {},
             ),
             Divider(height: 1, color: dividerColor),

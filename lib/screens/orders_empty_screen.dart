@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -18,28 +19,41 @@ class OrdersEmptyScreen extends StatelessWidget {
             Spacer(),
             EmptyOrdersIllustration(),
             SizedBox(height: 12),
-            Text(
-              'No orders yet.',
-              style: TextStyle(
-                fontSize: AppTypography.size,
-                color: AppColors.slate,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              'History is to make!',
-              style: TextStyle(
-                fontSize: AppTypography.size,
-                color: AppColors.slate,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            _OrdersEmptyText(),
             Spacer(),
             HomeIndicator(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _OrdersEmptyText extends StatelessWidget {
+  const _OrdersEmptyText();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          context.tr(AppStrings.noOrdersYet),
+          style: const TextStyle(
+            fontSize: AppTypography.size,
+            color: AppColors.slate,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.tr(AppStrings.historyIsToMake),
+          style: const TextStyle(
+            fontSize: AppTypography.size,
+            color: AppColors.slate,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
     );
   }
 }

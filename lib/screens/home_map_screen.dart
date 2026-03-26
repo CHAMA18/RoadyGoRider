@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
+import 'food_screen.dart';
 import 'notifications_screen.dart';
 import 'orders_empty_screen.dart';
 import 'ride_checkout_screen.dart';
@@ -78,7 +80,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                   right: 20,
                   child: PillButton(
                     icon: Icons.account_balance_wallet_outlined,
-                    label: 'Top up wallet',
+                    label: context.tr(AppStrings.topUpWallet),
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const WalletScreen()),
@@ -86,11 +88,13 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                     },
                   ),
                 ),
-                const Positioned(
+                Positioned(
                   top: 122,
                   left: 20,
                   right: 20,
-                  child: PromoCard(message: 'Don\'t Aid Fraud'),
+                  child: PromoCard(
+                    message: context.tr(AppStrings.dontAidFraud),
+                  ),
                 ),
                 Positioned(
                   left: 0,
@@ -122,7 +126,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                             ),
                             onFoodTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => const OrdersEmptyScreen(),
+                                builder: (_) => const FoodScreen(),
                               ),
                             ),
                             onAddWork: () {},
@@ -196,9 +200,9 @@ class GoogleStaticMap extends StatelessWidget {
       return Container(
         color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF2F4F7),
         alignment: Alignment.center,
-        child: const Text(
-          'Add GOOGLE_MAPS_API_KEY to show the map.',
-          style: TextStyle(
+        child: Text(
+          context.tr(AppStrings.addMapsApiKey),
+          style: const TextStyle(
             color: AppColors.slate,
             fontSize: AppTypography.size,
             fontWeight: FontWeight.w700,
@@ -216,8 +220,8 @@ class GoogleStaticMap extends StatelessWidget {
       errorBuilder: (context, error, stackTrace) => Container(
         color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF2F4F7),
         alignment: Alignment.center,
-        child: const Text(
-          'Map failed to load.',
+        child: Text(
+          context.tr(AppStrings.mapFailedToLoad),
           style: TextStyle(
             color: AppColors.slate,
             fontSize: AppTypography.size,
@@ -485,13 +489,13 @@ class HomeCategories extends StatelessWidget {
     return Column(
       children: [
         CategoryRow(
-          label: 'Food',
+          label: context.tr(AppStrings.food),
           leading: const FoodCategoryIcon(),
           onTap: onFoodTap,
           showTopBorder: false,
         ),
         CategoryRow(
-          label: 'Ride',
+          label: context.tr(AppStrings.ride),
           leading: const RideCategoryIcon(),
           onTap: onRideTap,
           showTopBorder: false,
@@ -552,7 +556,7 @@ class HomeCategories extends StatelessWidget {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      'Add work',
+                      context.tr(AppStrings.addWork),
                       style: TextStyle(
                         fontSize: AppTypography.size,
                         fontWeight: FontWeight.w700,
@@ -575,11 +579,14 @@ class RideCategoryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/images/car_icon_final.png',
-      width: 30,
-      height: 22,
-      fit: BoxFit.contain,
+    return SizedBox(
+      width: 42,
+      height: 28,
+      child: Image.asset(
+        'assets/images/IMG_0185.jpg',
+        fit: BoxFit.contain,
+        alignment: Alignment.center,
+      ),
     );
   }
 }
@@ -836,7 +843,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
     final accountRows = [
       DrawerRow(
         icon: Icons.person_outline_rounded,
-        label: 'Profile',
+        label: context.tr(AppStrings.profile),
         onTap: () =>
             widget.onNavigate(ProfileEditScreen(onLogout: widget.onLogout)),
         trailing: Row(
@@ -857,37 +864,43 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
       ),
       DrawerRow(
         icon: Icons.account_balance_wallet_outlined,
-        label: 'Wallet',
+        label: context.tr(AppStrings.wallet),
         onTap: () => widget.onNavigate(const WalletScreen()),
-        trailing: const DrawerPill(label: 'New', background: Color(0xFF16A34A)),
+        trailing: DrawerPill(
+          label: context.tr(AppStrings.newBadge),
+          background: const Color(0xFF16A34A),
+        ),
       ),
       DrawerRow(
         icon: Icons.settings_outlined,
-        label: 'Settings',
+        label: context.tr(AppStrings.settings),
         onTap: () => widget.onNavigate(const SettingsScreen()),
       ),
       DrawerRow(
         icon: Icons.directions_car_outlined,
-        label: 'Become a driver',
+        label: context.tr(AppStrings.becomeADriver),
         onTap: () {},
-        trailing: const DrawerPill(label: 'Ad', background: Color(0xFF15803D)),
+        trailing: DrawerPill(
+          label: context.tr(AppStrings.adBadge),
+          background: const Color(0xFF15803D),
+        ),
       ),
     ];
     final activityRows = [
       DrawerRow(
         icon: Icons.notifications_none_rounded,
-        label: 'Notifications',
+        label: context.tr(AppStrings.notifications),
         onTap: () => widget.onNavigate(const NotificationsScreen()),
         dot: true,
       ),
       DrawerRow(
         icon: Icons.menu_book_outlined,
-        label: 'My orders',
+        label: context.tr(AppStrings.myOrders),
         onTap: () => widget.onNavigate(const OrdersEmptyScreen()),
       ),
       DrawerRow(
         icon: Icons.local_offer_outlined,
-        label: 'Promo',
+        label: context.tr(AppStrings.promo),
         onTap: () => widget.onNavigate(const PromoScreen()),
       ),
     ];
@@ -902,7 +915,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
         children: [
           const SizedBox(height: 10),
           Text(
-            'Quick access',
+            context.tr(AppStrings.quickAccess),
             style: TextStyle(
               color: theme.brightness == Brightness.dark
                   ? const Color(0xFF94A3B8)
@@ -925,7 +938,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
               children: [
                 Expanded(
                   child: _DrawerSelectorButton(
-                    label: 'Account',
+                    label: context.tr(AppStrings.account),
                     selected: _section == _DrawerSection.account,
                     onTap: () =>
                         setState(() => _section = _DrawerSection.account),
@@ -933,7 +946,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
                 ),
                 Expanded(
                   child: _DrawerSelectorButton(
-                    label: 'Activity',
+                    label: context.tr(AppStrings.activity),
                     selected: _section == _DrawerSection.activity,
                     onTap: () =>
                         setState(() => _section = _DrawerSection.activity),
@@ -948,7 +961,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
           if (_section != _DrawerSection.account)
             DrawerRow(
               icon: Icons.settings_outlined,
-              label: 'Settings',
+              label: context.tr(AppStrings.settings),
               onTap: () => widget.onNavigate(const SettingsScreen()),
               compact: true,
             ),
@@ -974,7 +987,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Sign out',
+                    context.tr(AppStrings.signOut),
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 16,
@@ -991,7 +1004,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
                       vertical: 8,
                     ),
                   ),
-                  child: const Text('Go'),
+                  child: Text(context.tr(AppStrings.go)),
                 ),
               ],
             ),

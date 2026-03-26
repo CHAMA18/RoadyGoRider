@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app/app.dart';
+import '../app/localization.dart';
 import '../widgets/common_widgets.dart';
 
 class AppAppearanceScreen extends StatefulWidget {
@@ -57,7 +58,7 @@ class _AppAppearanceScreenState extends State<AppAppearanceScreen> {
             Padding(
               padding: EdgeInsets.fromLTRB(28, 22, 28, 0),
               child: Text(
-                'App appearance',
+                context.tr(AppStrings.appAppearance),
                 style: TextStyle(
                   color: isDark ? Colors.white : Colors.black,
                   fontSize: 32,
@@ -68,7 +69,7 @@ class _AppAppearanceScreenState extends State<AppAppearanceScreen> {
             ),
             const SizedBox(height: 28),
             _AppearanceRow(
-              title: 'Use device settings',
+              title: context.tr(AppStrings.useDeviceSettings),
               textColor: isDark
                   ? const Color(0xFFCBD5E1)
                   : const Color(0xFF1F2937),
@@ -78,7 +79,7 @@ class _AppAppearanceScreenState extends State<AppAppearanceScreen> {
               onTap: () => themeScope.setThemeMode(ThemeMode.system),
             ),
             _AppearanceRow(
-              title: 'Light mode',
+              title: context.tr(AppStrings.lightMode),
               textColor: isDark
                   ? const Color(0xFFCBD5E1)
                   : const Color(0xFF1F2937),
@@ -95,7 +96,7 @@ class _AppAppearanceScreenState extends State<AppAppearanceScreen> {
               onTap: () => themeScope.setThemeMode(ThemeMode.light),
             ),
             _AppearanceRow(
-              title: 'Dark mode',
+              title: context.tr(AppStrings.darkMode),
               textColor: isDark
                   ? const Color(0xFFCBD5E1)
                   : const Color(0xFF1F2937),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -58,7 +59,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        'Save',
+                        context.tr(AppStrings.save),
                         style: TextStyle(
                           color: colorScheme.onSurface,
                           fontSize: 20,
@@ -83,7 +84,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                       SizedBox(width: 24),
                       Text(
-                        'Add a photo',
+                        context.tr(AppStrings.addAPhoto),
                         style: TextStyle(
                           color: colorScheme.onSurface,
                           fontSize: 20,
@@ -100,7 +101,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _LabeledUnderlineInput(
-                          label: 'Phone number',
+                          label: context.tr(AppStrings.phoneNumber),
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
                         ),
@@ -109,17 +110,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                   const SizedBox(height: 34),
                   _LabeledUnderlineInput(
-                    label: 'Name',
+                    label: context.tr(AppStrings.name),
                     controller: _nameController,
                   ),
                   const SizedBox(height: 34),
                   _LabeledUnderlineInput(
-                    label: 'Email',
+                    label: context.tr(AppStrings.email),
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    placeholder: 'Email',
-                    helperText:
-                        'We\'ll send your trip summaries or invoices to this email',
+                    placeholder: context.tr(AppStrings.email),
+                    helperText: context.tr(AppStrings.tripSummaryEmailHint),
                   ),
                   const SizedBox(height: 40),
                   Container(
@@ -137,10 +137,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.only(right: 92),
                               child: Text(
-                                'Emergency contact number (SOS button)',
+                                context.tr(AppStrings.emergencyContactNumber),
                                 style: TextStyle(
                                   color: AppColors.slate,
                                   fontSize: 16,
@@ -160,7 +160,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     label: '',
                                     controller: _emergencyPhoneController,
                                     keyboardType: TextInputType.phone,
-                                    placeholder: 'Phone number',
+                                    placeholder: context.tr(
+                                      AppStrings.phoneNumber,
+                                    ),
                                     compact: true,
                                   ),
                                 ),
@@ -180,7 +182,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                   const SizedBox(height: 40),
                   Text(
-                    'Delete my account',
+                    context.tr(AppStrings.deleteMyAccount),
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 20,
@@ -191,7 +193,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   GestureDetector(
                     onTap: widget.onLogout,
                     child: Text(
-                      'Log out',
+                      context.tr(AppStrings.logOut),
                       style: TextStyle(
                         color: colorScheme.onSurface,
                         fontSize: 20,

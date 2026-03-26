@@ -1,15 +1,24 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
+import '../services/firebase_phone_auth_service.dart';
 import '../widgets/common_widgets.dart';
 
 class VerificationScreen extends StatefulWidget {
   const VerificationScreen({
     super.key,
     required this.phoneNumber,
+    required this.verificationId,
+    required this.resendToken,
     required this.onVerified,
   });
 
   final String phoneNumber;
+  final String verificationId;
+  final int? resendToken;
   final VoidCallback onVerified;
 
   @override
@@ -17,18 +26,29 @@ class VerificationScreen extends StatefulWidget {
 }
 
 class _VerificationScreenState extends State<VerificationScreen> {
+  static const int _initialCountdownSeconds = 14 * 60 + 33;
+
   late final List<TextEditingController> _controllers;
   late final List<FocusNode> _focusNodes;
+  Timer? _countdownTimer;
+  late String _verificationId;
+  int? _resendToken;
+  bool _isVerifying = false;
+  int _secondsRemaining = _initialCountdownSeconds;
 
   @override
   void initState() {
     super.initState();
     _controllers = List.generate(4, (_) => TextEditingController());
     _focusNodes = List.generate(4, (_) => FocusNode());
+    _verificationId = widget.verificationId;
+    _resendToken = widget.resendToken;
+    _startCountdown();
   }
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     for (final controller in _controllers) {
       controller.dispose();
     }
@@ -38,14 +58,105 @@ class _VerificationScreenState extends State<VerificationScreen> {
     super.dispose();
   }
 
-  void _handleCodeChanged(int index, String value) {
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (_secondsRemaining <= 1) {
+        setState(() => _secondsRemaining = 0);
+        timer.cancel();
+        return;
+      }
+
+      setState(() => _secondsRemaining -= 1);
+    });
+  }
+
+  Future<void> _resendCode() async {
+    for (final controller in _controllers) {
+      controller.clear();
+    }
+    _focusNodes.first.requestFocus();
+    await FirebasePhoneAuthService.instance.resendCode(
+      phoneNumber: widget.phoneNumber,
+      resendToken: _resendToken,
+      onCodeSent: (verificationId, resendToken) {
+        if (!mounted) {
+          return;
+        }
+        _verificationId = verificationId;
+        _resendToken = resendToken;
+        setState(() => _secondsRemaining = _initialCountdownSeconds);
+        _startCountdown();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              context.tr(
+                AppStrings.resendCodeConfirmation,
+                params: {'phone': widget.phoneNumber},
+              ),
+            ),
+          ),
+        );
+      },
+      onFailed: (FirebaseAuthException error) {
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              error.message ??
+                  'Failed to send verification code. Check Firebase setup.',
+            ),
+          ),
+        );
+      },
+      onAutoTimeout: (verificationId) {
+        _verificationId = verificationId;
+      },
+    );
+  }
+
+  Future<void> _handleCodeChanged(int index, String value) async {
     if (value.isNotEmpty && index < _focusNodes.length - 1) {
       _focusNodes[index + 1].requestFocus();
     }
 
     final code = _controllers.map((controller) => controller.text).join();
-    if (code.length == 4) {
-      widget.onVerified();
+    if (code.length == 4 && !_isVerifying) {
+      setState(() => _isVerifying = true);
+      try {
+        await FirebasePhoneAuthService.instance.verifyCode(
+          verificationId: _verificationId,
+          smsCode: code,
+        );
+        if (!mounted) {
+          return;
+        }
+        widget.onVerified();
+      } on FirebaseAuthException catch (error) {
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message ?? 'Incorrect verification code.'),
+          ),
+        );
+        for (final controller in _controllers) {
+          controller.clear();
+        }
+        _focusNodes.first.requestFocus();
+      } finally {
+        if (mounted) {
+          setState(() => _isVerifying = false);
+        }
+      }
     }
   }
 
@@ -100,21 +211,15 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                       ),
                       const Spacer(),
-                      Text(
-                        'Try again in 14m 33s',
-                        style: TextStyle(
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF9CA3AF),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      _ResendTimer(
+                        secondsRemaining: _secondsRemaining,
+                        onResend: _resendCode,
                       ),
                     ],
                   ),
                   const SizedBox(height: 42),
                   Text(
-                    'Code sent via SMS, WhatsApp, or Viber to',
+                    context.tr(AppStrings.codeSentTo),
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 28,
@@ -155,6 +260,50 @@ class _VerificationScreenState extends State<VerificationScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ResendTimer extends StatelessWidget {
+  const _ResendTimer({required this.secondsRemaining, required this.onResend});
+
+  final int secondsRemaining;
+  final VoidCallback onResend;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final countdownColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF9CA3AF);
+
+    if (secondsRemaining == 0) {
+      return TextButton(
+        onPressed: onResend,
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFFFF5C1A),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          context.tr(AppStrings.sendCodeAgain),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+        ),
+      );
+    }
+
+    final minutes = secondsRemaining ~/ 60;
+    final seconds = secondsRemaining % 60;
+    final formattedTime =
+        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+
+    return Text(
+      context.tr(AppStrings.sendAgainIn, params: {'time': formattedTime}),
+      style: TextStyle(
+        color: countdownColor,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -13,21 +14,24 @@ class SavedPlacesScreen extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
-          children: const [
-            TopBar(title: 'Saved places', trailing: 'Add a place'),
+          children: [
+            TopBar(
+              title: context.tr(AppStrings.savedPlaces),
+              trailing: context.tr(AppStrings.addAPlace),
+            ),
             Spacer(),
-            SavedPlacesEmpty(),
+            const SavedPlacesEmpty(),
             SizedBox(height: 12),
             Text(
-              'Save your favorite places',
-              style: TextStyle(
+              context.tr(AppStrings.saveYourFavoritePlaces),
+              style: const TextStyle(
                 color: AppColors.slate,
                 fontSize: AppTypography.size,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            Spacer(),
-            HomeIndicator(),
+            const Spacer(),
+            const HomeIndicator(),
           ],
         ),
       ),

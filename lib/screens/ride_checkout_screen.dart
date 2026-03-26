@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
@@ -30,7 +31,9 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _PlacePickerSheet(
-        title: pickup ? 'Set pick-up address' : 'Set destination address',
+        title: pickup
+            ? context.tr(AppStrings.setPickupAddress)
+            : context.tr(AppStrings.setDestinationAddress),
         current: pickup ? _pickup : _dropoff,
       ),
     );
@@ -96,8 +99,12 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                           const _DragHandle(),
                           const SizedBox(height: 12),
                           _AddressInputs(
-                            pickupLabel: _pickup?.title ?? 'Set pick-up point',
-                            dropoffLabel: _dropoff?.title ?? 'Drop-off address',
+                            pickupLabel:
+                                _pickup?.title ??
+                                context.tr(AppStrings.setPickupPoint),
+                            dropoffLabel:
+                                _dropoff?.title ??
+                                context.tr(AppStrings.dropOffAddress),
                             onPickupTap: () => _pickPlace(pickup: true),
                             onDropoffTap: () => _pickPlace(pickup: false),
                           ),
@@ -449,7 +456,7 @@ class _AddressInputs extends StatelessWidget {
 
   Color _dropoffColor(BuildContext context, String label) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isPlaceholder = label == 'Drop-off address';
+    final isPlaceholder = label == context.tr(AppStrings.dropOffAddress);
     if (!isPlaceholder) {
       return Theme.of(context).colorScheme.onSurface;
     }
@@ -558,37 +565,39 @@ class _VehicleSlider extends StatelessWidget {
         ? [
             _VehicleCard(
               selected: selectedTaxiTier == _TaxiTier.standard,
-              title: 'Standard Taxi',
-              subtitle: 'From 28 ZMW',
-              leading: Image.asset(
-                'assets/images/car_icon_final.png',
-                width: 34,
-                height: 34,
-                fit: BoxFit.contain,
+              title: context.tr(AppStrings.standardTaxi),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '28 ZMW'},
+              ),
+              leading: const _TaxiImageThumbnail(
+                assetPath: 'assets/images/IMG_0185.jpg',
               ),
               onTap: () => onTaxiTierSelected(_TaxiTier.standard),
             ),
             const SizedBox(width: 14),
             _VehicleCard(
               selected: selectedTaxiTier == _TaxiTier.comfort,
-              title: 'Comfort Taxi',
-              subtitle: 'From 40 ZMW',
-              leading: const Icon(
-                Icons.airline_seat_recline_extra_rounded,
-                size: 34,
-                color: Color(0xFF2563EB),
+              title: context.tr(AppStrings.comfortTaxi),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '40 ZMW'},
+              ),
+              leading: const _TaxiImageThumbnail(
+                assetPath: 'assets/images/car_plus.jpg',
               ),
               onTap: () => onTaxiTierSelected(_TaxiTier.comfort),
             ),
             const SizedBox(width: 14),
             _VehicleCard(
               selected: selectedTaxiTier == _TaxiTier.vip,
-              title: 'VIP Taxi',
-              subtitle: 'From 65 ZMW',
-              leading: const Icon(
-                Icons.workspace_premium_rounded,
-                size: 34,
-                color: Color(0xFFCA8A04),
+              title: context.tr(AppStrings.vipTaxi),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '65 ZMW'},
+              ),
+              leading: const _TaxiImageThumbnail(
+                assetPath: 'assets/images/car_business.jpg',
               ),
               onTap: () => onTaxiTierSelected(_TaxiTier.vip),
             ),
@@ -597,24 +606,26 @@ class _VehicleSlider extends StatelessWidget {
         ? [
             _VehicleCard(
               selected: selectedDeliveryTier == _DeliveryTier.bicycleCourier,
-              title: 'Bicycle Courier',
-              subtitle: 'From 12 ZMW',
-              leading: const Icon(
-                Icons.pedal_bike_rounded,
-                size: 34,
-                color: Color(0xFF16A34A),
+              title: context.tr(AppStrings.bicycleCourier),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '12 ZMW'},
+              ),
+              leading: const _ServiceImageThumbnail(
+                assetPath: 'assets/images/bicycle.jpg',
               ),
               onTap: () => onDeliveryTierSelected(_DeliveryTier.bicycleCourier),
             ),
             const SizedBox(width: 14),
             _VehicleCard(
               selected: selectedDeliveryTier == _DeliveryTier.motorcycleCourier,
-              title: 'Motorcycle Courier',
-              subtitle: 'From 20 ZMW',
-              leading: const Icon(
-                Icons.two_wheeler_rounded,
-                size: 34,
-                color: Color(0xFFFB923C),
+              title: context.tr(AppStrings.motorcycleCourier),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '20 ZMW'},
+              ),
+              leading: const _ServiceImageThumbnail(
+                assetPath: 'assets/images/co-bike.jpg',
               ),
               onTap: () =>
                   onDeliveryTierSelected(_DeliveryTier.motorcycleCourier),
@@ -624,37 +635,39 @@ class _VehicleSlider extends StatelessWidget {
         ? [
             _VehicleCard(
               selected: selectedCargoTier == _CargoTier.minivan,
-              title: 'Minivan',
-              subtitle: 'From 45 ZMW',
-              leading: const Icon(
-                Icons.airport_shuttle_rounded,
-                size: 34,
-                color: Color(0xFF2563EB),
+              title: context.tr(AppStrings.minivan),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '45 ZMW'},
+              ),
+              leading: const _ServiceImageThumbnail(
+                assetPath: 'assets/images/small_truck.jpg',
               ),
               onTap: () => onCargoTierSelected(_CargoTier.minivan),
             ),
             const SizedBox(width: 14),
             _VehicleCard(
               selected: selectedCargoTier == _CargoTier.panelVan,
-              title: 'Panel Van',
-              subtitle: 'From 60 ZMW',
-              leading: const Icon(
-                Icons.local_shipping_outlined,
-                size: 34,
-                color: Color(0xFFF97316),
+              title: context.tr(AppStrings.panelVan),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '60 ZMW'},
+              ),
+              leading: const _ServiceImageThumbnail(
+                assetPath: 'assets/images/mid-truck.jpg',
               ),
               onTap: () => onCargoTierSelected(_CargoTier.panelVan),
             ),
             const SizedBox(width: 14),
             _VehicleCard(
               selected: selectedCargoTier == _CargoTier.lightTruck,
-              title: 'Light Truck',
-              subtitle: 'From 85 ZMW',
-              leading: Image.asset(
-                'assets/images/truck.png',
-                width: 34,
-                height: 34,
-                fit: BoxFit.contain,
+              title: context.tr(AppStrings.lightTruck),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '85 ZMW'},
+              ),
+              leading: const _ServiceImageThumbnail(
+                assetPath: 'assets/images/large_truck.jpg',
               ),
               onTap: () => onCargoTierSelected(_CargoTier.lightTruck),
             ),
@@ -662,11 +675,13 @@ class _VehicleSlider extends StatelessWidget {
         : [
             _VehicleCard(
               selected: false,
-              title: 'Delivery',
-              subtitle: 'From 20 ZMW',
-              leading: const Icon(
-                Icons.two_wheeler_rounded,
-                size: 34,
+              title: context.tr(AppStrings.delivery),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '20 ZMW'},
+              ),
+              leading: const _ServiceIconThumbnail(
+                icon: Icons.two_wheeler_rounded,
                 color: Color(0xFFFB923C),
               ),
               onTap: () => onSelected(_ServiceType.delivery),
@@ -674,13 +689,13 @@ class _VehicleSlider extends StatelessWidget {
             const SizedBox(width: 14),
             _VehicleCard(
               selected: false,
-              title: 'Cargo',
-              subtitle: 'From 45 ZMW',
-              leading: Image.asset(
-                'assets/images/truck.png',
-                width: 34,
-                height: 34,
-                fit: BoxFit.contain,
+              title: context.tr(AppStrings.cargo),
+              subtitle: context.tr(
+                AppStrings.fromPrice,
+                params: {'price': '45 ZMW'},
+              ),
+              leading: const _ServiceImageThumbnail(
+                assetPath: 'assets/images/truck.png',
               ),
               onTap: () => onSelected(_ServiceType.cargo),
             ),
@@ -705,7 +720,7 @@ class _ServiceChipRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    const actionOrange = Color(0xFFF25E1C);
 
     Widget chip(
       String label, {
@@ -720,19 +735,30 @@ class _ServiceChipRow extends StatelessWidget {
           child: Ink(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFF1F2937) : colorScheme.surface,
+              color: selected
+                  ? actionOrange
+                  : actionOrange.withValues(alpha: 0.04),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: selected
-                    ? const Color(0xFF1F2937)
-                    : const Color(0xFFE5E7EB),
+                    ? actionOrange
+                    : actionOrange.withValues(alpha: 0.16),
               ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: actionOrange.withValues(alpha: 0.22),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ]
+                  : null,
             ),
             child: Text(
               label,
               style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : const Color(0xFF6B7280),
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                color: selected ? Colors.white : const Color(0xFF7C2D12),
               ),
             ),
           ),
@@ -747,19 +773,19 @@ class _ServiceChipRow extends StatelessWidget {
         child: Row(
           children: [
             chip(
-              'Taxi',
+              context.tr(AppStrings.taxi),
               selected: selectedService == _ServiceType.taxi,
               onTap: () => onSelected(_ServiceType.taxi),
             ),
             const SizedBox(width: 10),
             chip(
-              'Delivery',
+              context.tr(AppStrings.delivery),
               selected: selectedService == _ServiceType.delivery,
               onTap: () => onSelected(_ServiceType.delivery),
             ),
             const SizedBox(width: 10),
             chip(
-              'Cargo',
+              context.tr(AppStrings.cargo),
               selected: selectedService == _ServiceType.cargo,
               onTap: () => onSelected(_ServiceType.cargo),
             ),
@@ -811,7 +837,7 @@ class _VehicleCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SizedBox(width: 64, child: Center(child: leading)),
+            SizedBox(width: 76, child: Center(child: leading)),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -843,18 +869,79 @@ class _VehicleCard extends StatelessWidget {
   }
 }
 
+class _ServiceImageThumbnail extends StatelessWidget {
+  const _ServiceImageThumbnail({required this.assetPath});
+
+  final String assetPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: 68,
+      height: 42,
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Image.asset(
+        assetPath,
+        fit: BoxFit.contain,
+        alignment: Alignment.center,
+      ),
+    );
+  }
+}
+
+class _TaxiImageThumbnail extends StatelessWidget {
+  const _TaxiImageThumbnail({required this.assetPath});
+
+  final String assetPath;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ServiceImageThumbnail(assetPath: assetPath);
+  }
+}
+
+class _ServiceIconThumbnail extends StatelessWidget {
+  const _ServiceIconThumbnail({required this.icon, required this.color});
+
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: 68,
+      height: 42,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: Icon(icon, size: 34, color: color),
+    );
+  }
+}
+
 class _RidePreferencesRow extends StatelessWidget {
   const _RidePreferencesRow();
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: const [
-        _PreferenceButton(icon: Icons.access_time_rounded, label: 'Now'),
+      children: [
+        _PreferenceButton(
+          icon: Icons.access_time_rounded,
+          label: context.tr(AppStrings.now),
+        ),
         Spacer(),
         _PreferenceButton(
           icon: Icons.payments_outlined,
-          label: 'Cash',
+          label: context.tr(AppStrings.cash),
           useChip: true,
         ),
       ],
@@ -933,7 +1020,9 @@ class _PickupButton extends StatelessWidget {
           ),
         ),
         child: Text(
-          hasPickup && hasDropoff ? 'Continue' : 'Set pick-up point',
+          hasPickup && hasDropoff
+              ? context.tr(AppStrings.continueLabel)
+              : context.tr(AppStrings.setPickupPoint),
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
         ),
       ),
@@ -1097,7 +1186,7 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Search for a place',
+                        hintText: context.tr(AppStrings.searchForAPlace),
                         hintStyle: TextStyle(
                           color: isDark
                               ? const Color(0xFF94A3B8)

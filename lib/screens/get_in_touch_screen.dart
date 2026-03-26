@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/localization.dart';
 import '../widgets/common_widgets.dart';
 
 class GetInTouchScreen extends StatelessWidget {
@@ -43,7 +44,7 @@ class GetInTouchScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(24, 34, 24, 20),
               child: Text(
-                'Get in touch',
+                context.tr(AppStrings.getInTouch),
                 style: TextStyle(
                   color: colorScheme.onSurface,
                   fontSize: 31,
@@ -57,19 +58,31 @@ class GetInTouchScreen extends StatelessWidget {
                 children: [
                   ListView(
                     padding: const EdgeInsets.only(bottom: 54),
-                    children: const [
-                      _ContactRow(icon: _PhoneIcon(), label: 'Call us'),
-                      _ContactDivider(),
-                      _ContactRow(icon: _MailIcon(), label: 'Email us'),
-                      _ContactDivider(),
+                    children: [
                       _ContactRow(
-                        icon: _InfoIcon(),
-                        label: 'Get legal information',
+                        icon: const _PhoneIcon(),
+                        label: context.tr(AppStrings.callUs),
                       ),
                       _ContactDivider(),
-                      _ContactRow(icon: _FacebookIcon(), label: 'Facebook'),
+                      _ContactRow(
+                        icon: const _MailIcon(),
+                        label: context.tr(AppStrings.emailUs),
+                      ),
                       _ContactDivider(),
-                      _ContactRow(icon: _InstagramIcon(), label: 'Instagram'),
+                      _ContactRow(
+                        icon: const _InfoIcon(),
+                        label: context.tr(AppStrings.getLegalInformation),
+                      ),
+                      _ContactDivider(),
+                      _ContactRow(
+                        icon: const _FacebookIcon(),
+                        label: context.tr(AppStrings.facebook),
+                      ),
+                      _ContactDivider(),
+                      _ContactRow(
+                        icon: const _InstagramIcon(),
+                        label: context.tr(AppStrings.instagram),
+                      ),
                       _ContactDivider(),
                     ],
                   ),
