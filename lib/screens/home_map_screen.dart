@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
+import '../widgets/location_picker_sheet.dart';
 import 'food_screen.dart';
 import 'notifications_screen.dart';
 import 'orders_empty_screen.dart';
@@ -28,6 +29,7 @@ class HomeMapScreen extends StatefulWidget {
 
 class _HomeMapScreenState extends State<HomeMapScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isPromoDismissed = false;
 
   void _openDrawer() => _scaffoldKey.currentState?.openDrawer();
 
@@ -44,6 +46,25 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
   void _logoutToAuth() {
     Navigator.of(context).popUntil((route) => route.isFirst);
     widget.onLogout();
+  }
+
+  void _openPromo() async {
+    final message = context.tr(AppStrings.dontAidFraud);
+    final dismissed = await Navigator.of(context).push<bool>(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return FullScreenPromoScreen(message: message);
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+    if (dismissed == true) {
+      setState(() {
+        _isPromoDismissed = true;
+      });
+    }
   }
 
   @override
@@ -89,14 +110,18 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                     },
                   ),
                 ),
-                Positioned(
-                  top: 122,
-                  left: 20,
-                  right: 20,
-                  child: PromoCard(
-                    message: context.tr(AppStrings.dontAidFraud),
+                if (!_isPromoDismissed)
+                  Positioned(
+                    top: 122,
+                    left: 20,
+                    right: 20,
+                    child: GestureDetector(
+                      onTap: _openPromo,
+                      child: PromoCard(
+                        message: context.tr(AppStrings.dontAidFraud),
+                      ),
+                    ),
                   ),
-                ),
                 Positioned(
                   left: 0,
                   right: 0,
@@ -130,7 +155,14 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                                 builder: (_) => const FoodScreen(),
                               ),
                             ),
-                            onAddWork: () {},
+                            onAddWork: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => const LocationPickerSheet(),
+                              );
+                            },
                           ),
                           const SizedBox(height: 14),
                           const HomeIndicator(),
@@ -441,31 +473,140 @@ class PromoCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF5F5F7),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(
-              Icons.volume_off_rounded,
-              size: 28,
-              color: theme.colorScheme.onSurface,
+          Hero(
+            tag: 'promo_icon',
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF5F5F7),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                Icons.volume_off_rounded,
+                size: 28,
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                color: theme.colorScheme.onSurface,
-                fontSize: AppTypography.size,
-                fontWeight: FontWeight.w800,
+            child: Hero(
+              tag: 'promo_text',
+              child: Material(
+                color: Colors.transparent,
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface,
+                    fontSize: AppTypography.size,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FullScreenPromoScreen extends StatelessWidget {
+  const FullScreenPromoScreen({super.key, required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  icon: const Icon(Icons.close, size: 32),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Hero(
+                    tag: 'promo_icon',
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF5F5F7),
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: Icon(
+                        Icons.volume_off_rounded,
+                        size: 56,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  Hero(
+                    tag: 'promo_text',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    child: Text(
+                      'Please stay alert and report any suspicious activity. We are committed to your safety and well-being.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text('Understood', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1043,13 +1184,7 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
           const SizedBox(height: 18),
           ...visibleRows,
           const Spacer(),
-          if (_section != _DrawerSection.account)
-            DrawerRow(
-              icon: Icons.settings_outlined,
-              label: context.tr(AppStrings.settings),
-              onTap: () => widget.onNavigate(const SettingsScreen()),
-              compact: true,
-            ),
+
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),

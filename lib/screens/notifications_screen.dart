@@ -27,7 +27,6 @@ class NotificationsScreen extends StatelessWidget {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('notifications')
-                    .orderBy('createdAt', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -37,7 +36,7 @@ class NotificationsScreen extends StatelessWidget {
                   if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                        'An error occurred',
+                        'An error occurred: ${snapshot.error}',
                         style: const TextStyle(color: Colors.red),
                       ),
                     );
@@ -55,7 +54,24 @@ class NotificationsScreen extends StatelessWidget {
                     );
                   }
 
-                  final docs = snapshot.data!.docs;
+                  final docs = snapshot.data!.docs.toList();
+                  docs.sort((a, b) {
+                    final dataA = a.data() as Map<String, dynamic>;
+                    final dataB = b.data() as Map<String, dynamic>;
+                    final dateA = dataA['createdAt'];
+                    final dateB = dataB['createdAt'];
+                    
+                    DateTime timeA = DateTime.fromMillisecondsSinceEpoch(0);
+                    DateTime timeB = DateTime.fromMillisecondsSinceEpoch(0);
+                    
+                    if (dateA is Timestamp) timeA = dateA.toDate();
+                    else if (dateA is String) timeA = DateTime.tryParse(dateA) ?? timeA;
+                    
+                    if (dateB is Timestamp) timeB = dateB.toDate();
+                    else if (dateB is String) timeB = DateTime.tryParse(dateB) ?? timeB;
+                    
+                    return timeB.compareTo(timeA); // descending
+                  });
 
                   return ListView.separated(
                     itemCount: docs.length,

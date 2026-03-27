@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -24,6 +26,62 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   _TaxiTier _selectedTaxiTier = _TaxiTier.standard;
   _DeliveryTier _selectedDeliveryTier = _DeliveryTier.bicycleCourier;
   _CargoTier _selectedCargoTier = _CargoTier.minivan;
+  bool _isRequesting = false;
+
+  Future<void> _requestDriver() async {
+    if (_isRequesting || _pickup == null || _dropoff == null) return;
+    setState(() => _isRequesting = true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('rides').add({
+          'userId': user.uid,
+          'pickup': {
+            'title': _pickup!.title,
+            'subtitle': _pickup!.subtitle,
+            'latitude': _pickup!.latLng.latitude,
+            'longitude': _pickup!.latLng.longitude,
+          },
+          'dropoff': {
+            'title': _dropoff!.title,
+            'subtitle': _dropoff!.subtitle,
+            'latitude': _dropoff!.latLng.latitude,
+            'longitude': _dropoff!.latLng.longitude,
+          },
+          'serviceType': _selectedService.name,
+          'taxiTier': _selectedTaxiTier.name,
+          'deliveryTier': _selectedDeliveryTier.name,
+          'cargoTier': _selectedCargoTier.name,
+          'status': 'pending',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Driver request sent successfully!')),
+          );
+          Navigator.of(context).pop();
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please log in to request a driver.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Failed to request driver: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRequesting = false);
+      }
+    }
+  }
 
   Future<void> _pickPlace({required bool pickup}) async {
     final selected = await showModalBottomSheet<_PlaceOption>(
@@ -153,6 +211,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                           _PickupButton(
                             hasPickup: _pickup != null,
                             hasDropoff: _dropoff != null,
+                            isLoading: _isRequesting,
                             onTap: () {
                               if (_pickup == null) {
                                 _pickPlace(pickup: true);
@@ -160,7 +219,9 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                               }
                               if (_dropoff == null) {
                                 _pickPlace(pickup: false);
+                                return;
                               }
+                              _requestDriver();
                             },
                           ),
                           const SizedBox(height: 22),
@@ -998,18 +1059,20 @@ class _PickupButton extends StatelessWidget {
     required this.onTap,
     required this.hasPickup,
     required this.hasDropoff,
+    this.isLoading = false,
   });
 
   final VoidCallback onTap;
   final bool hasPickup;
   final bool hasDropoff;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: onTap,
+        onPressed: isLoading ? null : onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFF25E1C),
           foregroundColor: Colors.white,
@@ -1019,12 +1082,21 @@ class _PickupButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: Text(
-          hasPickup && hasDropoff
-              ? context.tr(AppStrings.continueLabel)
-              : context.tr(AppStrings.setPickupPoint),
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-        ),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                hasPickup && hasDropoff
+                    ? context.tr(AppStrings.continueLabel)
+                    : context.tr(AppStrings.setPickupPoint),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
       ),
     );
   }
