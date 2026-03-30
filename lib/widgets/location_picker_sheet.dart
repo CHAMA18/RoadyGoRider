@@ -81,35 +81,20 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
     final colorScheme = theme.colorScheme;
     final mq = MediaQuery.of(context);
 
-    return Container(
-      height: mq.size.height * 0.85,
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.15),
-            blurRadius: 40,
-            offset: const Offset(0, -10),
-          ),
-        ],
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: colorScheme.onSurface),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Drag handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 20),
-              width: 48,
-              height: 5,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
@@ -260,6 +245,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

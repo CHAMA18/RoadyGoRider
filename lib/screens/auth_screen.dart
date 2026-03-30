@@ -252,7 +252,7 @@ class _SignedOutScreenState extends State<SignedOutScreen> {
                   child: Column(
                     children: [
                       const _BrandHeader(),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                       _AuthModeSelector(
                         isCreateAccount: _isCreateAccount,
                         onChanged: (value) => setState(() {
@@ -319,23 +319,10 @@ class _BrandHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.primary;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.local_shipping_rounded, color: color, size: 36),
-        const SizedBox(width: 12),
-        Text(
-          'Roady GO',
-          style: TextStyle(
-            color: color,
-            fontSize: 32,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.8,
-          ),
-        ),
-      ],
+    return Image.asset(
+      'assets/images/RoadyTaxi-image.png',
+      width: MediaQuery.of(context).size.width * 0.7,
+      fit: BoxFit.contain,
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
 import '../app/localization.dart';
@@ -308,25 +309,62 @@ class _RideCheckoutMap extends StatelessWidget {
   }
 }
 
-class _RideMapView extends StatelessWidget {
+class _RideMapView extends StatefulWidget {
   const _RideMapView();
 
   @override
-  Widget build(BuildContext context) {
-    final center = const LatLng(-15.4067, 28.2871);
-    if (kIsWeb) {
-      return _RideStaticMap(center: center);
-    }
+  State<_RideMapView> createState() => _RideMapViewState();
+}
 
+class _RideMapViewState extends State<_RideMapView> {
+  GoogleMapController? _controller;
+  LatLng _initialTarget = const LatLng(-15.4067, 28.2871);
+
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition();
+      final target = LatLng(position.latitude, position.longitude);
+      if (mounted) {
+        setState(() {
+          _initialTarget = target;
+        });
+        _controller?.animateCamera(CameraUpdate.newLatLng(target));
+      }
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GoogleMap(
-      initialCameraPosition: CameraPosition(target: center, zoom: 14.8),
-      myLocationButtonEnabled: false,
-      myLocationEnabled: false,
-      zoomControlsEnabled: false,
-      mapToolbarEnabled: false,
-      compassEnabled: false,
+      onMapCreated: (controller) => _controller = controller,
+      initialCameraPosition: CameraPosition(target: _initialTarget, zoom: 14.8),
+      myLocationButtonEnabled: true,
+      myLocationEnabled: true,
+      zoomControlsEnabled: true,
+      mapToolbarEnabled: true,
+      compassEnabled: true,
       buildingsEnabled: false,
       indoorViewEnabled: false,
+      padding: const EdgeInsets.only(bottom: 480, top: 80),
     );
   }
 }
@@ -421,47 +459,6 @@ class _EtaMapPointer extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                color: const Color(0xFF18181B),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.18),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '4',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      height: 1,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    'MIN',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.6,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
             Container(
               width: 32,
               height: 32,
@@ -733,7 +730,8 @@ class _VehicleSlider extends StatelessWidget {
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/co-bike.jpg',
-                imageScale: 1.8,
+                width: 86,
+                height: 60,
               ),
               onTap: () =>
                   onDeliveryTierSelected(_DeliveryTier.motorcycleCourier),
@@ -936,7 +934,7 @@ class _VehicleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 252,
+        width: MediaQuery.of(context).size.width - 48,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected ? Colors.white : const Color(0xFFF9FAFB),
@@ -957,30 +955,50 @@ class _VehicleCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SizedBox(width: 76, child: Center(child: leading)),
+            SizedBox(width: 86, child: Center(child: leading)),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Color(0xFF6B7280),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.info_outline,
+                        size: 14,
+                        color: Color(0xFF9CA3AF),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF111827),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Color(0xFF111827),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+            ),
+            Icon(
+              Icons.check_circle,
+              color: selected ? const Color(0xFFF97316) : Colors.transparent,
+              size: 20,
             ),
           ],
         ),
@@ -1035,7 +1053,12 @@ class _TaxiImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _ServiceImageThumbnail(assetPath: assetPath);
+    return _ServiceImageThumbnail(
+      assetPath: assetPath,
+      width: 86,
+      height: 52,
+      imageScale: 1.5,
+    );
   }
 }
 
@@ -1087,11 +1110,58 @@ class _RidePreferencesRow extends StatelessWidget {
     }
     return Row(
       children: [
-        _PreferenceButton(
-          icon: Icons.access_time_rounded,
-          label: label,
-          onTap: onTapNow,
-          onClear: scheduledDate != null ? onClearScheduled : null,
+        PopupMenuButton<String>(
+          offset: const Offset(0, 40),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          onSelected: (value) {
+            if (value == 'now') {
+              if (scheduledDate != null) {
+                onClearScheduled();
+              }
+            } else if (value == 'schedule') {
+              onTapNow();
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'now',
+              child: Text(
+                context.tr(AppStrings.now),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'schedule',
+              child: Text(
+                context.tr(AppStrings.scheduleAppointment),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _PreferenceButton(
+                icon: Icons.access_time_rounded,
+                label: label,
+                // Tap logic is now handled by the PopupMenuButton
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.keyboard_arrow_down_rounded,
+                  size: 20, color: Color(0xFF6B7280)),
+              if (scheduledDate != null) ...[
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: onClearScheduled,
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: Icon(Icons.close, size: 18, color: Color(0xFF6B7280)),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
         Spacer(),
         _PreferenceButton(

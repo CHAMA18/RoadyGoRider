@@ -118,10 +118,11 @@ class CircleBack extends StatelessWidget {
 }
 
 class TopBar extends StatelessWidget {
-  const TopBar({super.key, this.title, this.trailing, this.closeIcon = false});
+  const TopBar({super.key, this.title, this.trailing, this.onTrailingTap, this.closeIcon = false});
 
   final String? title;
   final String? trailing;
+  final VoidCallback? onTrailingTap;
   final bool closeIcon;
 
   @override
@@ -138,12 +139,15 @@ class TopBar extends StatelessWidget {
               CircleBack(closeIcon: closeIcon),
               const Spacer(),
               if (trailing != null)
-                Text(
-                  trailing!,
-                  style: TextStyle(
-                    fontSize: AppTypography.size,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
+                GestureDetector(
+                  onTap: onTrailingTap,
+                  child: Text(
+                    trailing!,
+                    style: TextStyle(
+                      fontSize: AppTypography.size,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ),
             ],

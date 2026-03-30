@@ -121,6 +121,7 @@ class AppStrings {
   static const confirmPassword = 'confirmPassword';
   static const confirmPasswordHint = 'confirmPasswordHint';
   static const passwordsDoNotMatch = 'passwordsDoNotMatch';
+  static const scheduleAppointment = 'scheduleAppointment';
 }
 
 class AppLocalizations {
@@ -298,9 +299,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightTruck: 'Light Truck',
     AppStrings.fromPrice: 'From {price}',
     AppStrings.now: 'Now',
-    AppStrings.cash: 'Cash',
-    AppStrings.continueLabel: 'Continue',
-    AppStrings.searchForAPlace: 'Search for a place',
+    AppStrings.cash: 'Cash', // You can translate this to 'Para në dorë' or keep 'Cash'
+    AppStrings.continueLabel: 'Vazhdo',
+    AppStrings.scheduleAppointment: 'Cakto takim',
+    AppStrings.searchForAPlace: 'Kërko një vend',
     AppStrings.mapFailedToLoad: 'Map failed to load.',
     AppStrings.addMapsApiKey: 'Add GOOGLE_MAPS_API_KEY to show the map.',
     AppStrings.welcomeBackTitle: 'Your next move starts here',

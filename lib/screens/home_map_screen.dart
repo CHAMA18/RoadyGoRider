@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/localization.dart';
 import '../app/theme.dart';
@@ -29,7 +31,27 @@ class HomeMapScreen extends StatefulWidget {
 
 class _HomeMapScreenState extends State<HomeMapScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  bool _isPromoDismissed = false;
+  bool _isPromoDismissed = true; // start as true until loaded
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPromoState();
+  }
+
+  Future<void> _loadPromoState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _isPromoDismissed = prefs.getBool('isPromoDismissed') ?? false;
+      });
+    } catch (e) {
+      debugPrint('Failed to load promo state: $e');
+      setState(() {
+        _isPromoDismissed = false; // default if fail
+      });
+    }
+  }
 
   void _openDrawer() => _scaffoldKey.currentState?.openDrawer();
 
@@ -50,7 +72,19 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
 
   void _openPromo() async {
     final message = context.tr(AppStrings.dontAidFraud);
-    final dismissed = await Navigator.of(context).push<bool>(
+    
+    // Mark as dismissed immediately when clicked
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isPromoDismissed', true);
+    } catch (e) {
+      debugPrint('Failed to save promo state: $e');
+    }
+    setState(() {
+      _isPromoDismissed = true;
+    });
+
+    await Navigator.of(context).push<bool>(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
           return FullScreenPromoScreen(message: message);
@@ -60,11 +94,6 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
         },
       ),
     );
-    if (dismissed == true) {
-      setState(() {
-        _isPromoDismissed = true;
-      });
-    }
   }
 
   @override
@@ -129,6 +158,10 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(
@@ -140,7 +173,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -156,11 +189,10 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                               ),
                             ),
                             onAddWork: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) => const LocationPickerSheet(),
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const LocationPickerSheet(),
+                                ),
                               );
                             },
                           ),
@@ -196,25 +228,64 @@ class MapBackdrop extends StatelessWidget {
   }
 }
 
-class GoogleMapView extends StatelessWidget {
+class GoogleMapView extends StatefulWidget {
   const GoogleMapView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final center = LatLng(-15.4067, 28.2871);
-    if (kIsWeb) {
-      return GoogleStaticMap(center: center);
-    }
+  State<GoogleMapView> createState() => _GoogleMapViewState();
+}
 
+class _GoogleMapViewState extends State<GoogleMapView> {
+  GoogleMapController? _controller;
+  LatLng _initialTarget = const LatLng(-15.4067, 28.2871);
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition();
+      final target = LatLng(position.latitude, position.longitude);
+      if (mounted) {
+        setState(() {
+          _initialTarget = target;
+          _initialized = true;
+        });
+        _controller?.animateCamera(CameraUpdate.newLatLng(target));
+      }
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GoogleMap(
-      initialCameraPosition: CameraPosition(target: center, zoom: 14.6),
-      myLocationButtonEnabled: false,
-      myLocationEnabled: false,
-      zoomControlsEnabled: false,
-      mapToolbarEnabled: false,
-      compassEnabled: false,
+      onMapCreated: (controller) => _controller = controller,
+      initialCameraPosition: CameraPosition(target: _initialTarget, zoom: 14.6),
+      myLocationButtonEnabled: true,
+      myLocationEnabled: true,
+      zoomControlsEnabled: true,
+      mapToolbarEnabled: true,
+      compassEnabled: true,
       buildingsEnabled: false,
       indoorViewEnabled: false,
+      padding: const EdgeInsets.only(bottom: 300, top: 80),
     );
   }
 }
@@ -612,6 +683,69 @@ class FullScreenPromoScreen extends StatelessWidget {
   }
 }
 
+class BigCategoryCard extends StatelessWidget {
+  const BigCategoryCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final Widget icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 110,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(
+            color: theme.brightness == Brightness.dark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.03),
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -4,
+              right: -4,
+              child: icon,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class HomeCategories extends StatelessWidget {
   const HomeCategories({
     super.key,
@@ -630,19 +764,26 @@ class HomeCategories extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
-        CategoryRow(
-          label: context.tr(AppStrings.food),
-          leading: const FoodCategoryIcon(),
-          onTap: onFoodTap,
-          showTopBorder: false,
+        Row(
+          children: [
+            Expanded(
+              child: BigCategoryCard(
+                title: context.tr(AppStrings.ride),
+                icon: const RideCategoryIcon(),
+                onTap: onRideTap,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: BigCategoryCard(
+                title: context.tr(AppStrings.food),
+                icon: const FoodCategoryIcon(),
+                onTap: onFoodTap,
+              ),
+            ),
+          ],
         ),
-        CategoryRow(
-          label: context.tr(AppStrings.ride),
-          leading: const RideCategoryIcon(),
-          onTap: onRideTap,
-          showTopBorder: false,
-        ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Row(
           children: [
             GestureDetector(
@@ -696,7 +837,7 @@ class HomeCategories extends StatelessWidget {
                       Icons.work_outline_rounded,
                       color: theme.colorScheme.onSurface,
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Text(
                       context.tr(AppStrings.addWork),
                       style: TextStyle(
@@ -722,12 +863,12 @@ class RideCategoryIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 42,
-      height: 28,
+      width: 80,
+      height: 60,
       child: Image.asset(
         'assets/images/IMG_0185.jpg',
         fit: BoxFit.contain,
-        alignment: Alignment.center,
+        alignment: Alignment.centerRight,
       ),
     );
   }
@@ -739,167 +880,18 @@ class FoodCategoryIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 34,
-      height: 28,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          const Positioned(left: 1, top: 1, child: _FriesIcon()),
-          const Positioned(right: 0, bottom: 0, child: _BurgerIcon()),
-        ],
+      width: 70,
+      height: 60,
+      child: Image.asset(
+        'assets/images/PHOTO-2026-03-27-20-08-38.jpg',
+        fit: BoxFit.contain,
+        alignment: Alignment.centerRight,
       ),
     );
   }
 }
 
-class _FriesIcon extends StatelessWidget {
-  const _FriesIcon();
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 16,
-      height: 19,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: 12,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF454545), Color(0xFF1F1F1F)],
-                ),
-                borderRadius: BorderRadius.circular(3),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x15000000),
-                    blurRadius: 3,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          ...List.generate(4, (index) {
-            final left = 1.5 + index * 3.4;
-            final height = 11 + (index.isEven ? 2 : 0).toDouble();
-            return Positioned(
-              left: left,
-              top: 0,
-              child: Container(
-                width: 2.4,
-                height: height,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFF2F2F2), Color(0xFF9A9A9A)],
-                  ),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _BurgerIcon extends StatelessWidget {
-  const _BurgerIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 20,
-      height: 16,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 1,
-            right: 1,
-            top: 1,
-            child: Container(
-              height: 7,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFE9E9E9), Color(0xFFBFBFBF)],
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(7),
-                  topRight: Radius.circular(7),
-                  bottomLeft: Radius.circular(4),
-                  bottomRight: Radius.circular(4),
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 3,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 2,
-            right: 2,
-            top: 7,
-            child: Container(
-              height: 2,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2A2A2A),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 3,
-            right: 3,
-            top: 9,
-            child: Container(
-              height: 1.6,
-              decoration: BoxDecoration(
-                color: const Color(0xFF7F7F7F),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 1.5,
-            right: 1.5,
-            bottom: 0,
-            child: Container(
-              height: 5.5,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFDCDCDC), Color(0xFFADADAD)],
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(3),
-                  topRight: Radius.circular(3),
-                  bottomLeft: Radius.circular(7),
-                  bottomRight: Radius.circular(7),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class CategoryRow extends StatelessWidget {
   const CategoryRow({
@@ -978,6 +970,14 @@ enum _DrawerSection { account, activity }
 class _QuickJumpMenuState extends State<QuickJumpMenu> {
   _DrawerSection _section = _DrawerSection.account;
 
+  // The date the Wallet feature was added.
+  static final DateTime _walletFeatureAddedDate = DateTime(2025, 5, 29); 
+
+  bool get _showWalletNewBadge {
+    // Show 'New' badge only if within 30 days of addition
+    return DateTime.now().difference(_walletFeatureAddedDate).inDays <= 30;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -1008,24 +1008,17 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
         icon: Icons.account_balance_wallet_outlined,
         label: context.tr(AppStrings.wallet),
         onTap: () => widget.onNavigate(const WalletScreen()),
-        trailing: DrawerPill(
-          label: context.tr(AppStrings.newBadge),
-          background: const Color(0xFF16A34A),
-        ),
+        trailing: _showWalletNewBadge
+            ? DrawerPill(
+                label: context.tr(AppStrings.newBadge),
+                background: const Color(0xFF16A34A),
+              )
+            : null,
       ),
       DrawerRow(
         icon: Icons.settings_outlined,
         label: context.tr(AppStrings.settings),
         onTap: () => widget.onNavigate(const SettingsScreen()),
-      ),
-      DrawerRow(
-        icon: Icons.directions_car_outlined,
-        label: context.tr(AppStrings.becomeADriver),
-        onTap: () {},
-        trailing: DrawerPill(
-          label: context.tr(AppStrings.adBadge),
-          background: const Color(0xFF15803D),
-        ),
       ),
     ];
     final activityRows = [

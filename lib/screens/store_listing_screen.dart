@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'cart_screen.dart';
+
 class StoreListingScreen extends StatefulWidget {
   const StoreListingScreen({
     super.key,
@@ -24,6 +26,39 @@ class StoreListingScreen extends StatefulWidget {
 
 class _StoreListingScreenState extends State<StoreListingScreen> {
   int _selectedCategoryIndex = 0;
+  final List<CartItem> _cartItems = [];
+
+  double get _cartTotal => _cartItems.fold(0, (sum, item) => sum + (item.price * item.quantity));
+  int get _cartCount => _cartItems.fold(0, (count, item) => count + item.quantity);
+
+  void _addToCart(String id, String title, double price) {
+    setState(() {
+      final index = _cartItems.indexWhere((item) => item.id == id);
+      if (index >= 0) {
+        _cartItems[index].quantity++;
+      } else {
+        _cartItems.add(CartItem(id: id, title: title, price: price));
+      }
+    });
+  }
+
+  void _removeFromCart(String id) {
+    setState(() {
+      final index = _cartItems.indexWhere((item) => item.id == id);
+      if (index >= 0) {
+        if (_cartItems[index].quantity > 1) {
+          _cartItems[index].quantity--;
+        } else {
+          _cartItems.removeAt(index);
+        }
+      }
+    });
+  }
+
+  int _getQuantity(String id) {
+    final item = _cartItems.where((item) => item.id == id).firstOrNull;
+    return item?.quantity ?? 0;
+  }
 
   final List<String> _categories = [
     'Popular',
@@ -40,7 +75,9 @@ class _StoreListingScreenState extends State<StoreListingScreen> {
     
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      body: CustomScrollView(
+      body: Stack(
+        children: [
+          CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 220,
@@ -231,11 +268,20 @@ class _StoreListingScreenState extends State<StoreListingScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   return _MenuItem(
+                    id: 'item_${_categories[_selectedCategoryIndex]}_$index',
                     title: 'Signature ${_categories[_selectedCategoryIndex]} ${index + 1}',
                     description: 'Tender, juicy, and perfectly seasoned with our secret blend of spices. Served with a side of crispy fries.',
                     price: '₺ ${(85 + index * 15).toString()}',
+                    numericPrice: (85 + index * 15).toDouble(),
                     accent: widget.accent,
                     isDark: isDark,
+                    quantity: _getQuantity('item_${_categories[_selectedCategoryIndex]}_$index'),
+                    onAdd: () => _addToCart(
+                      'item_${_categories[_selectedCategoryIndex]}_$index',
+                      'Signature ${_categories[_selectedCategoryIndex]} ${index + 1}',
+                      (85 + index * 15).toDouble(),
+                    ),
+                    onRemove: () => _removeFromCart('item_${_categories[_selectedCategoryIndex]}_$index'),
                   );
                 },
                 childCount: 8,
@@ -243,11 +289,117 @@ class _StoreListingScreenState extends State<StoreListingScreen> {
             ),
           ),
           const SliverToBoxAdapter(
-            child: SizedBox(height: 40),
+            child: SizedBox(height: 120),
           ),
         ],
       ),
-    );
+      if (_cartItems.isNotEmpty)
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 16,
+              bottom: 16 + MediaQuery.paddingOf(context).bottom,
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: widget.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    '₺ ${_cartTotal.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      color: widget.accent,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final updatedCart = await Navigator.push<List<CartItem>>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CartScreen(
+                            storeName: widget.title,
+                            accent: widget.accent,
+                            initialItems: List.from(_cartItems), // Clone list to avoid direct mutation
+                          ),
+                        ),
+                      );
+                      if (updatedCart != null) {
+                        setState(() {
+                          _cartItems.clear();
+                          _cartItems.addAll(updatedCart);
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: widget.accent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'View Cart',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (_cartCount > 0) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: Colors.white24,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              _cartCount.toString(),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
   }
 
   Widget _buildInfoChip(BuildContext context, IconData icon, String label, bool isDark) {
@@ -282,18 +434,28 @@ class _StoreListingScreenState extends State<StoreListingScreen> {
 
 class _MenuItem extends StatelessWidget {
   const _MenuItem({
+    required this.id,
     required this.title,
     required this.description,
     required this.price,
+    required this.numericPrice,
     required this.accent,
     required this.isDark,
+    required this.quantity,
+    required this.onAdd,
+    required this.onRemove,
   });
 
+  final String id;
   final String title;
   final String description;
   final String price;
+  final double numericPrice;
   final Color accent;
   final bool isDark;
+  final int quantity;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -355,27 +517,70 @@ class _MenuItem extends StatelessWidget {
                   color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
                 ),
                 Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                  bottom: -8,
+                  child: quantity > 0
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(999),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: onRemove,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Icon(Icons.remove_rounded, size: 20, color: accent),
+                                ),
+                              ),
+                              Text(
+                                quantity.toString(),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: onAdd,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: Icon(Icons.add_rounded, size: 20, color: accent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: onAdd,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.add_rounded,
+                              size: 24,
+                              color: accent,
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.add_rounded,
-                      size: 20,
-                      color: accent,
-                    ),
-                  ),
                 ),
               ],
             ),
