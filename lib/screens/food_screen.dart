@@ -694,7 +694,7 @@ class _RestaurantCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Free delivery above ZMW 120',
+                  'Free delivery above ₺ 120',
                   style: TextStyle(
                     color:
                         isDark ? const Color(0xFF94A3B8) : const Color(0xFF5E6F88),

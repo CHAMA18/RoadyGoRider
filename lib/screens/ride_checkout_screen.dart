@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 
 import '../app/localization.dart';
 import '../app/theme.dart';
@@ -27,6 +28,45 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   _DeliveryTier _selectedDeliveryTier = _DeliveryTier.bicycleCourier;
   _CargoTier _selectedCargoTier = _CargoTier.minivan;
   bool _isRequesting = false;
+  DateTime? _scheduledDate;
+
+  Future<void> _pickScheduledDate() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _scheduledDate ?? now,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 30)),
+    );
+    if (date == null) return;
+
+    if (!mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_scheduledDate ?? now),
+    );
+    if (time == null) return;
+
+    final selected = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+
+    if (selected.isBefore(now)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot schedule in the past')),
+      );
+      return;
+    }
+
+    setState(() {
+      _scheduledDate = selected;
+    });
+  }
 
   Future<void> _requestDriver() async {
     if (_isRequesting || _pickup == null || _dropoff == null) return;
@@ -37,6 +77,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
       if (user != null) {
         await FirebaseFirestore.instance.collection('rides').add({
           'userId': user.uid,
+          'scheduledDate': _scheduledDate?.toIso8601String(),
           'pickup': {
             'title': _pickup!.title,
             'subtitle': _pickup!.subtitle,
@@ -206,7 +247,11 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                             },
                           ),
                           const SizedBox(height: 14),
-                          const _RidePreferencesRow(),
+                          _RidePreferencesRow(
+                            scheduledDate: _scheduledDate,
+                            onTapNow: _pickScheduledDate,
+                            onClearScheduled: () => setState(() => _scheduledDate = null),
+                          ),
                           const SizedBox(height: 18),
                           _PickupButton(
                             hasPickup: _pickup != null,
@@ -629,7 +674,7 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.standardTaxi),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '28 ZMW'},
+                params: {'price': '28 ₺'},
               ),
               leading: const _TaxiImageThumbnail(
                 assetPath: 'assets/images/IMG_0185.jpg',
@@ -642,7 +687,7 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.comfortTaxi),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '40 ZMW'},
+                params: {'price': '40 ₺'},
               ),
               leading: const _TaxiImageThumbnail(
                 assetPath: 'assets/images/car_plus.jpg',
@@ -655,7 +700,7 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.vipTaxi),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '65 ZMW'},
+                params: {'price': '65 ₺'},
               ),
               leading: const _TaxiImageThumbnail(
                 assetPath: 'assets/images/car_business.jpg',
@@ -670,10 +715,11 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.bicycleCourier),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '12 ZMW'},
+                params: {'price': '12 ₺'},
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/bicycle.jpg',
+                imageScale: 1.8,
               ),
               onTap: () => onDeliveryTierSelected(_DeliveryTier.bicycleCourier),
             ),
@@ -683,10 +729,11 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.motorcycleCourier),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '20 ZMW'},
+                params: {'price': '20 ₺'},
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/co-bike.jpg',
+                imageScale: 1.8,
               ),
               onTap: () =>
                   onDeliveryTierSelected(_DeliveryTier.motorcycleCourier),
@@ -699,10 +746,14 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.minivan),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '45 ZMW'},
+                params: {'price': '45 ₺'},
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/small_truck.jpg',
+                width: 76,
+                height: 52,
+                imageScale: 1.5,
+                padding: EdgeInsets.zero,
               ),
               onTap: () => onCargoTierSelected(_CargoTier.minivan),
             ),
@@ -712,10 +763,14 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.panelVan),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '60 ZMW'},
+                params: {'price': '60 ₺'},
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/mid-truck.jpg',
+                width: 76,
+                height: 52,
+                imageScale: 1.5,
+                padding: EdgeInsets.zero,
               ),
               onTap: () => onCargoTierSelected(_CargoTier.panelVan),
             ),
@@ -725,10 +780,14 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.lightTruck),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '85 ZMW'},
+                params: {'price': '85 ₺'},
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/large_truck.jpg',
+                width: 76,
+                height: 52,
+                imageScale: 1.5,
+                padding: EdgeInsets.zero,
               ),
               onTap: () => onCargoTierSelected(_CargoTier.lightTruck),
             ),
@@ -739,7 +798,7 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.delivery),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '20 ZMW'},
+                params: {'price': '20 ₺'},
               ),
               leading: const _ServiceIconThumbnail(
                 icon: Icons.two_wheeler_rounded,
@@ -753,7 +812,7 @@ class _VehicleSlider extends StatelessWidget {
               title: context.tr(AppStrings.cargo),
               subtitle: context.tr(
                 AppStrings.fromPrice,
-                params: {'price': '45 ZMW'},
+                params: {'price': '45 ₺'},
               ),
               leading: const _ServiceImageThumbnail(
                 assetPath: 'assets/images/truck.png',
@@ -931,25 +990,39 @@ class _VehicleCard extends StatelessWidget {
 }
 
 class _ServiceImageThumbnail extends StatelessWidget {
-  const _ServiceImageThumbnail({required this.assetPath});
+  const _ServiceImageThumbnail({
+    required this.assetPath,
+    this.width = 68,
+    this.height = 42,
+    this.padding = const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+    this.imageScale = 1.0,
+  });
 
   final String assetPath;
+  final double width;
+  final double height;
+  final EdgeInsetsGeometry padding;
+  final double imageScale;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      width: 68,
-      height: 42,
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      width: width,
+      height: height,
+      padding: padding,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Image.asset(
-        assetPath,
-        fit: BoxFit.contain,
-        alignment: Alignment.center,
+      child: Transform.scale(
+        scale: imageScale,
+        child: Image.asset(
+          assetPath,
+          fit: BoxFit.contain,
+          alignment: Alignment.center,
+        ),
       ),
     );
   }
@@ -989,15 +1062,36 @@ class _ServiceIconThumbnail extends StatelessWidget {
 }
 
 class _RidePreferencesRow extends StatelessWidget {
-  const _RidePreferencesRow();
+  const _RidePreferencesRow({
+    this.scheduledDate,
+    required this.onTapNow,
+    required this.onClearScheduled,
+  });
+
+  final DateTime? scheduledDate;
+  final VoidCallback onTapNow;
+  final VoidCallback onClearScheduled;
 
   @override
   Widget build(BuildContext context) {
+    String label = context.tr(AppStrings.now);
+    if (scheduledDate != null) {
+      final now = DateTime.now();
+      if (scheduledDate!.year == now.year &&
+          scheduledDate!.month == now.month &&
+          scheduledDate!.day == now.day) {
+        label = DateFormat.jm().format(scheduledDate!);
+      } else {
+        label = DateFormat('MMM d, h:mm a').format(scheduledDate!);
+      }
+    }
     return Row(
       children: [
         _PreferenceButton(
           icon: Icons.access_time_rounded,
-          label: context.tr(AppStrings.now),
+          label: label,
+          onTap: onTapNow,
+          onClear: scheduledDate != null ? onClearScheduled : null,
         ),
         Spacer(),
         _PreferenceButton(
@@ -1015,15 +1109,19 @@ class _PreferenceButton extends StatelessWidget {
     required this.icon,
     required this.label,
     this.useChip = false,
+    this.onTap,
+    this.onClear,
   });
 
   final IconData icon;
   final String label;
   final bool useChip;
+  final VoidCallback? onTap;
+  final VoidCallback? onClear;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    Widget content = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (useChip)
@@ -1039,7 +1137,7 @@ class _PreferenceButton extends StatelessWidget {
             ),
           )
         else
-          Icon(icon, size: 22, color: Color(0xFF111827)),
+          Icon(icon, size: 22, color: const Color(0xFF111827)),
         if (!useChip) const SizedBox(width: 8) else const SizedBox(width: 10),
         Text(
           label,
@@ -1051,6 +1149,34 @@ class _PreferenceButton extends StatelessWidget {
         ),
       ],
     );
+
+    if (onTap != null) {
+      content = GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: content,
+      );
+    }
+
+    if (onClear != null) {
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          content,
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: onClear,
+            behavior: HitTestBehavior.opaque,
+            child: const Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Icon(Icons.close, size: 18, color: Color(0xFF6B7280)),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return content;
   }
 }
 

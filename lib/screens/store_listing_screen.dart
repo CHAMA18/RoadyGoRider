@@ -233,7 +233,7 @@ class _StoreListingScreenState extends State<StoreListingScreen> {
                   return _MenuItem(
                     title: 'Signature ${_categories[_selectedCategoryIndex]} ${index + 1}',
                     description: 'Tender, juicy, and perfectly seasoned with our secret blend of spices. Served with a side of crispy fries.',
-                    price: 'ZMW ${(85 + index * 15).toString()}',
+                    price: '₺ ${(85 + index * 15).toString()}',
                     accent: widget.accent,
                     isDark: isDark,
                   );
