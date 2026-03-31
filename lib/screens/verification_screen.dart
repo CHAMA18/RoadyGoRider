@@ -81,6 +81,23 @@ class _VerificationScreenState extends State<VerificationScreen> {
       controller.clear();
     }
     _focusNodes.first.requestFocus();
+
+    if (_verificationId == 'dummy_verification_id') {
+      setState(() => _secondsRemaining = _initialCountdownSeconds);
+      _startCountdown();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr(
+              AppStrings.resendCodeConfirmation,
+              params: {'phone': widget.phoneNumber},
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
     await FirebasePhoneAuthService.instance.resendCode(
       phoneNumber: widget.phoneNumber,
       resendToken: _resendToken,
@@ -131,6 +148,13 @@ class _VerificationScreenState extends State<VerificationScreen> {
     if (code.length == 4 && !_isVerifying) {
       setState(() => _isVerifying = true);
       try {
+        if (_verificationId == 'dummy_verification_id') {
+          await Future.delayed(const Duration(seconds: 1)); // Simulate network
+          if (!mounted) return;
+          widget.onVerified();
+          return;
+        }
+
         await FirebasePhoneAuthService.instance.verifyCode(
           verificationId: _verificationId,
           smsCode: code,

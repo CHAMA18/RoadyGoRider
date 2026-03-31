@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'cart_screen.dart';
-
 class StoreListingScreen extends StatefulWidget {
   const StoreListingScreen({
     super.key,
@@ -22,6 +20,20 @@ class StoreListingScreen extends StatefulWidget {
 
   @override
   State<StoreListingScreen> createState() => _StoreListingScreenState();
+}
+
+class CartItem {
+  final String id;
+  final String title;
+  final double price;
+  int quantity;
+
+  CartItem({
+    required this.id,
+    required this.title,
+    required this.price,
+    this.quantity = 1,
+  });
 }
 
 class _StoreListingScreenState extends State<StoreListingScreen> {
@@ -335,23 +347,14 @@ class _StoreListingScreenState extends State<StoreListingScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () async {
-                      final updatedCart = await Navigator.push<List<CartItem>>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CartScreen(
-                            storeName: widget.title,
-                            accent: widget.accent,
-                            initialItems: List.from(_cartItems), // Clone list to avoid direct mutation
-                          ),
+                    onPressed: () {
+                      // Handle checkout logic
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Proceeding to checkout...'),
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
-                      if (updatedCart != null) {
-                        setState(() {
-                          _cartItems.clear();
-                          _cartItems.addAll(updatedCart);
-                        });
-                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: widget.accent,
@@ -479,13 +482,10 @@ class _MenuItem extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 12),

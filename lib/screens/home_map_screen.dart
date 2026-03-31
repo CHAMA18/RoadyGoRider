@@ -14,7 +14,7 @@ import 'notifications_screen.dart';
 import 'orders_empty_screen.dart';
 import 'ride_checkout_screen.dart';
 import 'wallet_screen.dart';
-import 'profile_edit_screen.dart';
+import 'profile_screen.dart';
 import 'settings_screen.dart';
 import 'promo_screen.dart';
 
@@ -157,23 +157,18 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                   bottom: 0,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(32),
-                        topRight: Radius.circular(32),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0.0, 0.15],
+                        colors: [
+                          colorScheme.surface.withValues(alpha: 0.0),
+                          colorScheme.surface,
+                        ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: isDark ? 0.26 : 0.08,
-                          ),
-                          blurRadius: 24,
-                          offset: const Offset(0, -6),
-                        ),
-                      ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                      padding: const EdgeInsets.fromLTRB(0, 30, 0, 12),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -222,7 +217,6 @@ class MapBackdrop extends StatelessWidget {
         Positioned.fill(child: GoogleMapView()),
         Positioned(left: 34, bottom: 188, child: CarMarker()),
         Positioned(right: 104, bottom: 242, child: UserMarker()),
-        Positioned(left: 34, bottom: 260, child: MapLabel()),
       ],
     );
   }
@@ -337,23 +331,6 @@ class GoogleStaticMap extends StatelessWidget {
   }
 }
 
-class MapLabel extends StatelessWidget {
-  const MapLabel({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Text(
-      'IBEX\nMEANWOOD',
-      style: TextStyle(
-        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF6B7280),
-        fontSize: AppTypography.size,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-    );
-  }
-}
 
 class CarMarker extends StatelessWidget {
   const CarMarker({super.key});
@@ -533,12 +510,12 @@ class PromoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.10),
-            blurRadius: 28,
-            offset: const Offset(0, 18),
+            color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -706,12 +683,12 @@ class BigCategoryCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
           border: Border.all(
@@ -764,93 +741,53 @@ class HomeCategories extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: BigCategoryCard(
-                title: context.tr(AppStrings.ride),
-                icon: const RideCategoryIcon(),
-                onTap: onRideTap,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: BigCategoryCard(
-                title: context.tr(AppStrings.food),
-                icon: const FoodCategoryIcon(),
-                onTap: onFoodTap,
-              ),
-            ),
-          ],
+        CategoryRow(
+          label: context.tr(AppStrings.food),
+          leading: const SizedBox(
+            width: 40,
+            height: 30,
+            child: FoodCategoryIcon(),
+          ),
+          onTap: onFoodTap,
+          showTopBorder: true,
+        ),
+        CategoryRow(
+          label: context.tr(AppStrings.ride),
+          leading: const SizedBox(
+            width: 40,
+            height: 30,
+            child: RideCategoryIcon(),
+          ),
+          onTap: onRideTap,
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            GestureDetector(
-              onTap: onAddWork,
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(
-                        alpha: isDark ? 0.24 : 0.10,
-                      ),
-                      blurRadius: 20,
-                      offset: const Offset(0, 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: GestureDetector(
+            onTap: onAddWork,
+            child: Container(
+              margin: const EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: isDark ? 0.24 : 0.06,
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.add,
-                  size: 22,
-                  color: theme.colorScheme.onSurface,
-                ),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.add,
+                size: 22,
+                color: theme.colorScheme.onSurface,
               ),
             ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: onAddWork,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(
-                        alpha: isDark ? 0.24 : 0.10,
-                      ),
-                      blurRadius: 20,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.work_outline_rounded,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      context.tr(AppStrings.addWork),
-                      style: TextStyle(
-                        fontSize: AppTypography.size,
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
@@ -879,19 +816,9 @@ class FoodCategoryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 70,
-      height: 60,
-      child: Image.asset(
-        'assets/images/PHOTO-2026-03-27-20-08-38.jpg',
-        fit: BoxFit.contain,
-        alignment: Alignment.centerRight,
-      ),
-    );
+    return Image.asset('assets/images/PHOTO-2026-03-27-20-08-38.jpg', fit: BoxFit.contain);
   }
 }
-
-
 
 class CategoryRow extends StatelessWidget {
   const CategoryRow({
@@ -916,8 +843,8 @@ class CategoryRow extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 66,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(color: theme.colorScheme.surface).copyWith(
           border: Border(
             bottom: BorderSide(color: dividerColor),
@@ -928,20 +855,20 @@ class CategoryRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SizedBox(width: 28, child: Center(child: leading)),
-            const SizedBox(width: 14),
+            SizedBox(width: 44, child: Center(child: leading)),
+            const SizedBox(width: 16),
             Text(
               label,
               style: TextStyle(
                 color: theme.colorScheme.onSurface,
-                fontSize: AppTypography.size,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const Spacer(),
             Icon(
-              Icons.chevron_right_rounded,
-              size: 24,
+              Icons.arrow_forward,
+              size: 20,
               color: theme.colorScheme.onSurface,
             ),
           ],
@@ -965,262 +892,80 @@ class QuickJumpMenu extends StatefulWidget {
   State<QuickJumpMenu> createState() => _QuickJumpMenuState();
 }
 
-enum _DrawerSection { account, activity }
-
 class _QuickJumpMenuState extends State<QuickJumpMenu> {
-  _DrawerSection _section = _DrawerSection.account;
-
-  // The date the Wallet feature was added.
-  static final DateTime _walletFeatureAddedDate = DateTime(2025, 5, 29); 
-
-  bool get _showWalletNewBadge {
-    // Show 'New' badge only if within 30 days of addition
-    return DateTime.now().difference(_walletFeatureAddedDate).inDays <= 30;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final accountRows = [
-      DrawerRow(
-        icon: Icons.person_outline_rounded,
-        label: context.tr(AppStrings.profile),
-        onTap: () =>
-            widget.onNavigate(ProfileEditScreen(onLogout: widget.onLogout)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Icon(Icons.star, color: Color(0xFFF4B400), size: 18),
-            SizedBox(width: 6),
-            Text(
-              '4.90',
-              style: TextStyle(
-                fontSize: AppTypography.size,
-                color: AppColors.slate,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-      DrawerRow(
-        icon: Icons.account_balance_wallet_outlined,
-        label: context.tr(AppStrings.wallet),
-        onTap: () => widget.onNavigate(const WalletScreen()),
-        trailing: _showWalletNewBadge
-            ? DrawerPill(
-                label: context.tr(AppStrings.newBadge),
-                background: const Color(0xFF16A34A),
-              )
-            : null,
-      ),
-      DrawerRow(
-        icon: Icons.settings_outlined,
-        label: context.tr(AppStrings.settings),
-        onTap: () => widget.onNavigate(const SettingsScreen()),
-      ),
-    ];
-    final activityRows = [
-      DrawerRow(
-        icon: Icons.notifications_none_rounded,
-        label: context.tr(AppStrings.notifications),
-        onTap: () => widget.onNavigate(const NotificationsScreen()),
-        dot: true,
-      ),
-      DrawerRow(
-        icon: Icons.menu_book_outlined,
-        label: context.tr(AppStrings.myOrders),
-        onTap: () => widget.onNavigate(const OrdersEmptyScreen()),
-      ),
-      DrawerRow(
-        icon: Icons.local_offer_outlined,
-        label: context.tr(AppStrings.promo),
-        onTap: () => widget.onNavigate(const PromoScreen()),
-      ),
-    ];
-    final visibleRows = _section == _DrawerSection.account
-        ? accountRows
-        : activityRows;
-
+    
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
+      padding: EdgeInsets.only(
+        left: 22,
+        right: 22,
+        top: MediaQuery.paddingOf(context).top + 28,
+        bottom: MediaQuery.paddingOf(context).bottom + 24,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 10),
-          Text(
-            context.tr(AppStrings.quickAccess),
-            style: TextStyle(
-              color: theme.brightness == Brightness.dark
-                  ? const Color(0xFF94A3B8)
-                  : AppColors.slate,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.2,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            height: 48,
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? const Color(0xFF1E293B)
-                  : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? Colors.white.withValues(alpha: 0.05)
-                    : Colors.black.withValues(alpha: 0.05),
-                width: 1,
-              ),
-            ),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final tabWidth = constraints.maxWidth / 2;
-                return Stack(
-                  children: [
-                    AnimatedPositioned(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      left: _section == _DrawerSection.account ? 0 : tabWidth,
-                      top: 0,
-                      bottom: 0,
-                      width: tabWidth,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: theme.brightness == Brightness.dark
-                              ? const Color(0xFF334155)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              setState(() => _section = _DrawerSection.account);
-                            },
-                            child: Center(
-                              child: AnimatedDefaultTextStyle(
-                                duration: const Duration(milliseconds: 200),
-                                style: TextStyle(
-                                  color: _section == _DrawerSection.account
-                                      ? (theme.brightness == Brightness.dark
-                                          ? Colors.white
-                                          : AppColors.slate)
-                                      : (theme.brightness == Brightness.dark
-                                          ? const Color(0xFF94A3B8)
-                                          : const Color(0xFF64748B)),
-                                  fontSize: 14,
-                                  fontWeight: _section == _DrawerSection.account
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                ),
-                                child: Text(context.tr(AppStrings.account)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              setState(() => _section = _DrawerSection.activity);
-                            },
-                            child: Center(
-                              child: AnimatedDefaultTextStyle(
-                                duration: const Duration(milliseconds: 200),
-                                style: TextStyle(
-                                  color: _section == _DrawerSection.activity
-                                      ? (theme.brightness == Brightness.dark
-                                          ? Colors.white
-                                          : AppColors.slate)
-                                      : (theme.brightness == Brightness.dark
-                                          ? const Color(0xFF94A3B8)
-                                          : const Color(0xFF64748B)),
-                                  fontSize: 14,
-                                  fontWeight: _section == _DrawerSection.activity
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                ),
-                                child: Text(context.tr(AppStrings.activity)),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 18),
-          ...visibleRows,
-          const Spacer(),
-
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? const Color(0xFF334155)
-                    : const Color(0xFFE5E7EB),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.logout_rounded,
-                  color: colorScheme.onSurface,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    context.tr(AppStrings.signOut),
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
+          DrawerRow(
+            icon: Icons.person_outline_rounded,
+            label: context.tr(AppStrings.profile),
+            onTap: () =>
+                widget.onNavigate(ProfileScreen(onLogout: widget.onLogout)),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.star, color: Color(0xFFF4B400), size: 16),
+                SizedBox(width: 6),
+                Text(
+                  '4.90',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.slate,
+                    fontWeight: FontWeight.w500,
                   ),
-                ),
-                TextButton(
-                  onPressed: widget.onLogout,
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                  ),
-                  child: Text(context.tr(AppStrings.go)),
                 ),
               ],
             ),
+          ),
+          DrawerRow(
+            icon: Icons.notifications_none_rounded,
+            label: context.tr(AppStrings.notifications),
+            onTap: () => widget.onNavigate(const NotificationsScreen()),
+          ),
+          DrawerRow(
+            icon: Icons.account_balance_wallet_outlined,
+            label: context.tr(AppStrings.wallet),
+            onTap: () => widget.onNavigate(const WalletScreen()),
+            trailing: const Text(
+              '0 ZMW',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.slate,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          DrawerRow(
+            icon: Icons.map_outlined,
+            label: context.tr(AppStrings.myOrders),
+            onTap: () => widget.onNavigate(const OrdersEmptyScreen()),
+          ),
+          DrawerRow(
+            icon: Icons.local_offer_outlined,
+            label: context.tr(AppStrings.promo),
+            onTap: () => widget.onNavigate(const PromoScreen()),
+          ),
+          DrawerRow(
+            icon: Icons.settings_outlined,
+            label: context.tr(AppStrings.settings),
+            onTap: () => widget.onNavigate(const SettingsScreen()),
+          ),
+          const Spacer(),
+          DrawerRow(
+            icon: Icons.directions_car_outlined,
+            label: context.tr(AppStrings.becomeADriver),
+            onTap: () {},
           ),
         ],
       ),

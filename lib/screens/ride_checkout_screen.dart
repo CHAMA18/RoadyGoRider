@@ -177,27 +177,22 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                   bottom: 0,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(30),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          colorScheme.surface.withValues(alpha: 0.0),
+                          colorScheme.surface,
+                          colorScheme.surface,
+                        ],
+                        stops: const [0.0, 0.15, 1.0],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: isDark ? 0.26 : 0.08,
-                          ),
-                          blurRadius: 25,
-                          offset: const Offset(0, -5),
-                        ),
-                      ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                      padding: const EdgeInsets.fromLTRB(24, 40, 24, 12),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const _DragHandle(),
-                          const SizedBox(height: 12),
                           _AddressInputs(
                             pickupLabel:
                                 _pickup?.title ??
@@ -425,8 +420,8 @@ class _CloseMapButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 52,
-        height: 52,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
@@ -440,7 +435,7 @@ class _CloseMapButton extends StatelessWidget {
         ),
         child: const Icon(
           Icons.close_rounded,
-          size: 26,
+          size: 22,
           color: Color(0xFF1F2937),
         ),
       ),
@@ -462,10 +457,9 @@ class _EtaMapPointer extends StatelessWidget {
             Container(
               width: 32,
               height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFF18181B),
+              decoration: const BoxDecoration(
+                color: Color(0xFF18181B),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
               ),
               alignment: Alignment.center,
               child: const Text(
@@ -484,21 +478,8 @@ class _EtaMapPointer extends StatelessWidget {
   }
 }
 
-class _DragHandle extends StatelessWidget {
-  const _DragHandle();
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 48,
-      height: 4,
-      decoration: BoxDecoration(
-        color: const Color(0xFFE5E7EB),
-        borderRadius: BorderRadius.circular(999),
-      ),
-    );
-  }
-}
+
 
 class _AddressInputs extends StatelessWidget {
   const _AddressInputs({
@@ -521,15 +502,15 @@ class _AddressInputs extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE5E7EB),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -591,7 +572,7 @@ class _AddressRow extends StatelessWidget {
         : const Color(0xFFF3F4F6);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(8),
       child: Column(
         children: [
           Row(
@@ -627,13 +608,15 @@ class _AddressRow extends StatelessWidget {
               Icon(
                 Icons.search_rounded,
                 size: 20,
-                color: labelColor.withValues(alpha: 0.85),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF94A3B8)
+                    : const Color(0xFF9CA3AF),
               ),
             ],
           ),
           if (showDivider) ...[
             const SizedBox(height: 12),
-            Divider(height: 1, color: dividerColor),
+            Divider(height: 1, color: dividerColor, indent: 36),
           ],
         ],
       ),
@@ -820,7 +803,7 @@ class _VehicleSlider extends StatelessWidget {
           ];
 
     return SizedBox(
-      height: 94,
+      height: 116,
       child: ListView(scrollDirection: Axis.horizontal, children: children),
     );
   }
@@ -849,25 +832,25 @@ class _ServiceChipRow extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(8),
           child: Ink(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             decoration: BoxDecoration(
               color: selected
                   ? actionOrange
-                  : actionOrange.withValues(alpha: 0.04),
-              borderRadius: BorderRadius.circular(14),
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: selected
                     ? actionOrange
-                    : actionOrange.withValues(alpha: 0.16),
+                    : actionOrange.withValues(alpha: 0.3),
               ),
               boxShadow: selected
                   ? [
                       BoxShadow(
                         color: actionOrange.withValues(alpha: 0.22),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ]
                   : null,
@@ -876,7 +859,7 @@ class _ServiceChipRow extends StatelessWidget {
               label,
               style: theme.textTheme.labelLarge?.copyWith(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                color: selected ? Colors.white : const Color(0xFF7C2D12),
+                color: selected ? Colors.white : actionOrange,
               ),
             ),
           ),
@@ -934,29 +917,29 @@ class _VehicleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: MediaQuery.of(context).size.width - 48,
-        padding: const EdgeInsets.all(14),
+        width: 170,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
           color: selected ? Colors.white : const Color(0xFFF9FAFB),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected ? const Color(0xFFF97316) : Colors.transparent,
+            color: selected ? const Color(0xFFF97316) : const Color(0xFFE5E7EB),
             width: selected ? 2 : 1,
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
                 ]
               : null,
         ),
         child: Row(
           children: [
-            SizedBox(width: 86, child: Center(child: leading)),
-            const SizedBox(width: 12),
+            SizedBox(width: 50, child: Center(child: leading)),
+            const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -967,12 +950,13 @@ class _VehicleCard extends StatelessWidget {
                       Flexible(
                         child: Text(
                           title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Color(0xFF6B7280),
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -988,7 +972,7 @@ class _VehicleCard extends StatelessWidget {
                     subtitle,
                     style: const TextStyle(
                       color: Color(0xFF111827),
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -1055,9 +1039,9 @@ class _TaxiImageThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ServiceImageThumbnail(
       assetPath: assetPath,
-      width: 86,
-      height: 52,
-      imageScale: 1.5,
+      width: 60,
+      height: 40,
+      imageScale: 1.2,
     );
   }
 }
@@ -1196,14 +1180,25 @@ class _PreferenceButton extends StatelessWidget {
       children: [
         if (useChip)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
+              color: const Color(0xFFDCFCE7),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Text(
-              '💵 •',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.payments, size: 14, color: Color(0xFF16A34A)),
+                const SizedBox(width: 4),
+                Container(
+                  width: 4,
+                  height: 4,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF16A34A),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
             ),
           )
         else
@@ -1275,7 +1270,7 @@ class _PickupButton extends StatelessWidget {
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: isLoading
@@ -1414,7 +1409,7 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
         return Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [

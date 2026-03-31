@@ -118,18 +118,13 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                   height: 56,
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.05),
+                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
                         blurRadius: 10,
-                        spreadRadius: 1,
-                      )
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                     border: Border.all(
                       color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
@@ -281,7 +276,7 @@ class _QuickActionChip extends StatelessWidget {
           color: isPrimary
               ? colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.1)
               : (isDark ? const Color(0xFF1E293B) : Colors.white),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isPrimary
                 ? colorScheme.primary.withValues(alpha: 0.3)
@@ -342,7 +337,7 @@ class _LocationListTile extends StatelessWidget {
     
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
@@ -372,8 +367,6 @@ class _LocationListTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: theme.colorScheme.onSurface,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -383,8 +376,6 @@ class _LocationListTile extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
