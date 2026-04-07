@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
 
-class SceneDelegate: FlutterSceneDelegate {
-
-}
+// SceneDelegate is not used in standard Flutter applications.
+// class SceneDelegate {
+// }

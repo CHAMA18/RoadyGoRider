@@ -162,6 +162,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
         children: [
           const Positioned.fill(child: _RideCheckoutMap()),
           SafeArea(
+            bottom: false,
             child: Stack(
               children: [
                 Positioned(
@@ -189,7 +190,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 40, 24, 12),
+                      padding: EdgeInsets.fromLTRB(16, 40, 16, MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom : 16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -265,8 +266,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                               _requestDriver();
                             },
                           ),
-                          const SizedBox(height: 22),
-                          const HomeIndicator(),
+                          const SizedBox(height: 12),
                         ],
                       ),
                     ),
@@ -917,7 +917,7 @@ class _VehicleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 170,
+        width: 210,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
           color: selected ? Colors.white : const Color(0xFFF9FAFB),

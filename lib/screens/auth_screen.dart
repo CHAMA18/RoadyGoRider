@@ -157,13 +157,20 @@ class _SignedOutScreenState extends State<SignedOutScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: CustomScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
                 'Enter your phone number to\nstart',
                 style: TextStyle(
                   fontSize: 26,
@@ -376,6 +383,10 @@ class _SignedOutScreenState extends State<SignedOutScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
+                ),
+              ),
+            ],
+                  ),
                 ),
               ),
             ],

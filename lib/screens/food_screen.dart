@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'store_listing_screen.dart';
+import 'restaurant_detail_screen.dart';
+import 'saved_places_screen.dart';
 
 class FoodScreen extends StatefulWidget {
   const FoodScreen({super.key});
@@ -217,7 +220,21 @@ class _FoodScreenState extends State<FoodScreen> {
     required String imageUrl,
     required String logoText,
   }) {
-    return Column(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RestaurantDetailScreen(
+              title: title,
+              rating: rating,
+              timeText: timeText,
+              imageUrl: imageUrl,
+            ),
+          ),
+        );
+      },
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Stack(
@@ -438,6 +455,7 @@ class _FoodScreenState extends State<FoodScreen> {
           ],
         ),
       ],
+    ),
     );
   }
 }
@@ -682,6 +700,12 @@ class _FoodProfileBodyState extends State<_FoodProfileBody> {
                             title: 'My addresses',
                             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                             iconColor: Colors.grey.shade600,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SavedPlacesScreen()),
+                              );
+                            },
                           ),
                           const SizedBox(height: 12),
                           _buildCard(
@@ -733,24 +757,28 @@ class _FoodProfileBodyState extends State<_FoodProfileBody> {
     String? subtitle,
     Widget? trailing,
     required Color iconColor,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          const SizedBox(width: 16),
+            const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,8 +811,9 @@ class _FoodProfileBodyState extends State<_FoodProfileBody> {
           ],
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _FoodPatternBackground extends StatelessWidget {

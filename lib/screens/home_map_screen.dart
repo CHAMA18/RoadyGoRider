@@ -115,6 +115,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
         children: [
           const Positioned.fill(child: MapBackdrop()),
           SafeArea(
+            bottom: false,
             child: Stack(
               children: [
                 Positioned(
@@ -168,7 +169,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 30, 0, 12),
+                      padding: EdgeInsets.fromLTRB(0, 30, 0, MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom : 12),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -191,8 +192,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                               );
                             },
                           ),
-                          const SizedBox(height: 14),
-                          const HomeIndicator(),
+                          const SizedBox(height: 12),
                         ],
                       ),
                     ),
