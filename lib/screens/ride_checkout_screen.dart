@@ -29,6 +29,8 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   _DeliveryTier _selectedDeliveryTier = _DeliveryTier.bicycleCourier;
   _CargoTier _selectedCargoTier = _CargoTier.minivan;
   bool _isRequesting = false;
+  bool _isSearchingForDriver = false;
+  String? _currentRideId;
   DateTime? _scheduledDate;
 
   Future<void> _pickScheduledDate() async {
@@ -76,7 +78,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('rides').add({
+        final docRef = await FirebaseFirestore.instance.collection('rides').add({
           'userId': user.uid,
           'scheduledDate': _scheduledDate?.toIso8601String(),
           'pickup': {
@@ -100,10 +102,10 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
         });
         
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Driver request sent successfully!')),
-          );
-          Navigator.of(context).pop();
+          setState(() {
+            _currentRideId = docRef.id;
+            _isSearchingForDriver = true;
+          });
         }
       } else {
         if (mounted) {
@@ -122,6 +124,25 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
       if (mounted) {
         setState(() => _isRequesting = false);
       }
+    }
+  }
+
+  Future<void> _cancelRequest() async {
+    if (_currentRideId != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('rides')
+            .doc(_currentRideId)
+            .update({'status': 'cancelled'});
+      } catch (e) {
+        debugPrint('Failed to cancel ride: $e');
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _isSearchingForDriver = false;
+        _currentRideId = null;
+      });
     }
   }
 
@@ -191,84 +212,86 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                     ),
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(16, 40, 16, MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom : 16),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _AddressInputs(
-                            pickupLabel:
-                                _pickup?.title ??
-                                context.tr(AppStrings.setPickupPoint),
-                            dropoffLabel:
-                                _dropoff?.title ??
-                                context.tr(AppStrings.dropOffAddress),
-                            onPickupTap: () => _pickPlace(pickup: true),
-                            onDropoffTap: () => _pickPlace(pickup: false),
-                          ),
-                          const SizedBox(height: 14),
-                          _ServiceChipRow(
-                            selectedService: _selectedService,
-                            onSelected: (service) {
-                              setState(() {
-                                _selectedService = service;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 18),
-                          _VehicleSlider(
-                            selectedService: _selectedService,
-                            selectedTaxiTier: _selectedTaxiTier,
-                            selectedDeliveryTier: _selectedDeliveryTier,
-                            selectedCargoTier: _selectedCargoTier,
-                            onSelected: (service) {
-                              setState(() {
-                                _selectedService = service;
-                              });
-                            },
-                            onTaxiTierSelected: (tier) {
-                              setState(() {
-                                _selectedService = _ServiceType.taxi;
-                                _selectedTaxiTier = tier;
-                              });
-                            },
-                            onDeliveryTierSelected: (tier) {
-                              setState(() {
-                                _selectedService = _ServiceType.delivery;
-                                _selectedDeliveryTier = tier;
-                              });
-                            },
-                            onCargoTierSelected: (tier) {
-                              setState(() {
-                                _selectedService = _ServiceType.cargo;
-                                _selectedCargoTier = tier;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 14),
-                          _RidePreferencesRow(
-                            scheduledDate: _scheduledDate,
-                            onTapNow: _pickScheduledDate,
-                            onClearScheduled: () => setState(() => _scheduledDate = null),
-                          ),
-                          const SizedBox(height: 18),
-                          _PickupButton(
-                            hasPickup: _pickup != null,
-                            hasDropoff: _dropoff != null,
-                            isLoading: _isRequesting,
-                            onTap: () {
-                              if (_pickup == null) {
-                                _pickPlace(pickup: true);
-                                return;
-                              }
-                              if (_dropoff == null) {
-                                _pickPlace(pickup: false);
-                                return;
-                              }
-                              _requestDriver();
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                      ),
+                      child: _isSearchingForDriver
+                          ? _SearchingDriverView(onCancel: _cancelRequest)
+                          : Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _AddressInputs(
+                                  pickupLabel:
+                                      _pickup?.title ??
+                                      context.tr(AppStrings.setPickupPoint),
+                                  dropoffLabel:
+                                      _dropoff?.title ??
+                                      context.tr(AppStrings.dropOffAddress),
+                                  onPickupTap: () => _pickPlace(pickup: true),
+                                  onDropoffTap: () => _pickPlace(pickup: false),
+                                ),
+                                const SizedBox(height: 14),
+                                _ServiceChipRow(
+                                  selectedService: _selectedService,
+                                  onSelected: (service) {
+                                    setState(() {
+                                      _selectedService = service;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 18),
+                                _VehicleSlider(
+                                  selectedService: _selectedService,
+                                  selectedTaxiTier: _selectedTaxiTier,
+                                  selectedDeliveryTier: _selectedDeliveryTier,
+                                  selectedCargoTier: _selectedCargoTier,
+                                  onSelected: (service) {
+                                    setState(() {
+                                      _selectedService = service;
+                                    });
+                                  },
+                                  onTaxiTierSelected: (tier) {
+                                    setState(() {
+                                      _selectedService = _ServiceType.taxi;
+                                      _selectedTaxiTier = tier;
+                                    });
+                                  },
+                                  onDeliveryTierSelected: (tier) {
+                                    setState(() {
+                                      _selectedService = _ServiceType.delivery;
+                                      _selectedDeliveryTier = tier;
+                                    });
+                                  },
+                                  onCargoTierSelected: (tier) {
+                                    setState(() {
+                                      _selectedService = _ServiceType.cargo;
+                                      _selectedCargoTier = tier;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 14),
+                                _RidePreferencesRow(
+                                  scheduledDate: _scheduledDate,
+                                  onTapNow: _pickScheduledDate,
+                                  onClearScheduled: () => setState(() => _scheduledDate = null),
+                                ),
+                                const SizedBox(height: 18),
+                                _PickupButton(
+                                  hasPickup: _pickup != null,
+                                  hasDropoff: _dropoff != null,
+                                  isLoading: _isRequesting,
+                                  onTap: () {
+                                    if (_pickup == null) {
+                                      _pickPlace(pickup: true);
+                                      return;
+                                    }
+                                    if (_dropoff == null) {
+                                      _pickPlace(pickup: false);
+                                      return;
+                                    }
+                                    _requestDriver();
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                            ),
                     ),
                   ),
                 ),
@@ -733,7 +756,7 @@ class _VehicleSlider extends StatelessWidget {
                 assetPath: 'assets/images/small_truck.jpg',
                 width: 76,
                 height: 52,
-                imageScale: 1.5,
+                imageScale: 1.0,
                 padding: EdgeInsets.zero,
               ),
               onTap: () => onCargoTierSelected(_CargoTier.minivan),
@@ -750,7 +773,7 @@ class _VehicleSlider extends StatelessWidget {
                 assetPath: 'assets/images/mid-truck.jpg',
                 width: 76,
                 height: 52,
-                imageScale: 1.5,
+                imageScale: 1.0,
                 padding: EdgeInsets.zero,
               ),
               onTap: () => onCargoTierSelected(_CargoTier.panelVan),
@@ -767,7 +790,7 @@ class _VehicleSlider extends StatelessWidget {
                 assetPath: 'assets/images/large_truck.jpg',
                 width: 76,
                 height: 52,
-                imageScale: 1.5,
+                imageScale: 1.0,
                 padding: EdgeInsets.zero,
               ),
               onTap: () => onCargoTierSelected(_CargoTier.lightTruck),
@@ -803,7 +826,7 @@ class _VehicleSlider extends StatelessWidget {
           ];
 
     return SizedBox(
-      height: 116,
+      height: 76,
       child: ListView(scrollDirection: Axis.horizontal, children: children),
     );
   }
@@ -918,7 +941,7 @@ class _VehicleCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 210,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? Colors.white : const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(8),
@@ -1293,7 +1316,81 @@ class _PickupButton extends StatelessWidget {
   }
 }
 
+class _SearchingDriverView extends StatelessWidget {
+  const _SearchingDriverView({required this.onCancel});
+
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
+            shape: BoxShape.circle,
+          ),
+          child: const SizedBox(
+            width: 60,
+            height: 60,
+            child: CircularProgressIndicator(
+              strokeWidth: 4,
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF25E1C)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Finding you a driver...',
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'This usually takes about a minute',
+          style: TextStyle(
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF6B7280),
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 32),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            onPressed: onCancel,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFEF4444),
+              side: const BorderSide(color: Color(0xFFEF4444)),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Cancel Request',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+}
+
 class _PlaceOption {
+
   const _PlaceOption({
     required this.title,
     required this.subtitle,

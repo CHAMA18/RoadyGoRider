@@ -300,9 +300,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.fromPrice: 'From {price}',
     AppStrings.now: 'Now',
     AppStrings.cash: 'Cash', // You can translate this to 'Para në dorë' or keep 'Cash'
-    AppStrings.continueLabel: 'Vazhdo',
-    AppStrings.scheduleAppointment: 'Cakto takim',
-    AppStrings.searchForAPlace: 'Kërko një vend',
+    AppStrings.continueLabel: 'Continue',
+    AppStrings.scheduleAppointment: 'Schedule appointment',
+    AppStrings.searchForAPlace: 'Search for a place',
     AppStrings.mapFailedToLoad: 'Map failed to load.',
     AppStrings.addMapsApiKey: 'Add GOOGLE_MAPS_API_KEY to show the map.',
     AppStrings.welcomeBackTitle: 'Your next move starts here',
