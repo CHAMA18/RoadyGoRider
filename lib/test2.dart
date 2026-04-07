@@ -8,7 +8,7 @@ class TestScreen extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            Image.asset('assets/images/RoadyTaxi-image.png'),
+            Image.asset('assets/images/Vunigo_logo.png'),
             Image.asset('assets/images/car_icon_final.png'),
             Image.asset('assets/images/IMG_0185.jpg'),
           ],

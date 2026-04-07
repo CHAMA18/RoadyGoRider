@@ -210,7 +210,7 @@ extension LocalizationBuildContext on BuildContext {
 
 const Map<String, Map<String, String>> _translations = {
   'English': {
-    AppStrings.appTitle: 'RoadyGo Rider',
+    AppStrings.appTitle: 'Vunigo',
     AppStrings.settings: 'Settings',
     AppStrings.appAppearance: 'App appearance',
     AppStrings.language: 'Language',
@@ -245,7 +245,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Light mode',
     AppStrings.darkMode: 'Dark mode',
     AppStrings.chooseLanguageDescription:
-        'Choose the language you want to use in RoadyGo Rider.',
+        'Choose the language you want to use in Vunigo.',
     AppStrings.currentLanguage: 'Current language',
     AppStrings.searchLanguages: 'Search languages',
     AppStrings.noLanguagesMatch: 'No languages match your search.',
@@ -324,7 +324,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.passwordHint: 'Enter your password',
     AppStrings.forgotPassword: 'Forgot password?',
     AppStrings.alreadyHaveAccount: 'Already have an account?',
-    AppStrings.newHerePrompt: 'New to RoadyGo?',
+    AppStrings.newHerePrompt: 'New to Vunigo?',
     AppStrings.enterYourName: 'Enter your full name to continue.',
     AppStrings.enterValidEmail: 'Enter a valid email address to continue.',
     AppStrings.enterPhoneNumberToContinue:
@@ -373,7 +373,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Menyra e ndricuar',
     AppStrings.darkMode: 'Menyra e erret',
     AppStrings.chooseLanguageDescription:
-        'Zgjidhni gjuhen qe deshironi te perdorni ne RoadyGo Rider.',
+        'Zgjidhni gjuhen qe deshironi te perdorni ne Vunigo.',
     AppStrings.currentLanguage: 'Gjuha aktuale',
     AppStrings.searchLanguages: 'Kerko gjuhet',
     AppStrings.noLanguagesMatch: 'Asnje gjuhe nuk perputhet me kerkimin tuaj.',
@@ -461,7 +461,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Mode clair',
     AppStrings.darkMode: 'Mode sombre',
     AppStrings.chooseLanguageDescription:
-        'Choisissez la langue a utiliser dans RoadyGo Rider.',
+        'Choisissez la langue a utiliser dans Vunigo.',
     AppStrings.currentLanguage: 'Langue actuelle',
     AppStrings.searchLanguages: 'Rechercher des langues',
     AppStrings.callUs: 'Appelez-nous',
@@ -504,7 +504,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Heller Modus',
     AppStrings.darkMode: 'Dunkler Modus',
     AppStrings.chooseLanguageDescription:
-        'Wahlen Sie die Sprache, die Sie in RoadyGo Rider verwenden mochten.',
+        'Wahlen Sie die Sprache, die Sie in Vunigo verwenden mochten.',
     AppStrings.currentLanguage: 'Aktuelle Sprache',
     AppStrings.searchLanguages: 'Sprachen suchen',
     AppStrings.topUpWallet: 'Geldborse aufladen',
@@ -543,7 +543,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Modo claro',
     AppStrings.darkMode: 'Modo oscuro',
     AppStrings.chooseLanguageDescription:
-        'Elige el idioma que deseas usar en RoadyGo Rider.',
+        'Elige el idioma que deseas usar en Vunigo.',
     AppStrings.currentLanguage: 'Idioma actual',
     AppStrings.searchLanguages: 'Buscar idiomas',
     AppStrings.topUpWallet: 'Recargar billetera',
@@ -580,7 +580,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Modalita chiara',
     AppStrings.darkMode: 'Modalita scura',
     AppStrings.chooseLanguageDescription:
-        'Scegli la lingua da usare in RoadyGo Rider.',
+        'Scegli la lingua da usare in Vunigo.',
     AppStrings.currentLanguage: 'Lingua corrente',
     AppStrings.searchLanguages: 'Cerca lingue',
     AppStrings.topUpWallet: 'Ricarica portafoglio',
@@ -615,7 +615,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Modo claro',
     AppStrings.darkMode: 'Modo escuro',
     AppStrings.chooseLanguageDescription:
-        'Escolha o idioma que pretende usar no RoadyGo Rider.',
+        'Escolha o idioma que pretende usar no Vunigo.',
     AppStrings.currentLanguage: 'Idioma atual',
     AppStrings.searchLanguages: 'Pesquisar idiomas',
     AppStrings.topUpWallet: 'Carregar carteira',
@@ -648,7 +648,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Lichte modus',
     AppStrings.darkMode: 'Donkere modus',
     AppStrings.chooseLanguageDescription:
-        'Kies de taal die je wilt gebruiken in RoadyGo Rider.',
+        'Kies de taal die je wilt gebruiken in Vunigo.',
     AppStrings.currentLanguage: 'Huidige taal',
     AppStrings.searchLanguages: 'Talen zoeken',
     AppStrings.topUpWallet: 'Portemonnee opwaarderen',
@@ -675,7 +675,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Tryb jasny',
     AppStrings.darkMode: 'Tryb ciemny',
     AppStrings.chooseLanguageDescription:
-        'Wybierz jezyk, ktorego chcesz uzywac w RoadyGo Rider.',
+        'Wybierz jezyk, ktorego chcesz uzywac w Vunigo.',
     AppStrings.currentLanguage: 'Biezacy jezyk',
     AppStrings.searchLanguages: 'Szukaj jezykow',
     AppStrings.food: 'Jedzenie',
@@ -701,7 +701,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Anoichti leitourgia',
     AppStrings.darkMode: 'Skoteini leitourgia',
     AppStrings.chooseLanguageDescription:
-        'Epilexte ti glossa pou thelete na xrisimopoieite sto RoadyGo Rider.',
+        'Epilexte ti glossa pou thelete na xrisimopoieite sto Vunigo.',
     AppStrings.currentLanguage: 'Trexousa glossa',
     AppStrings.searchLanguages: 'Anazitisi glosson',
     AppStrings.food: 'Fagito',
@@ -727,7 +727,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Mod luminos',
     AppStrings.darkMode: 'Mod intunecat',
     AppStrings.chooseLanguageDescription:
-        'Alegeti limba pe care doriti sa o folositi in RoadyGo Rider.',
+        'Alegeti limba pe care doriti sa o folositi in Vunigo.',
     AppStrings.currentLanguage: 'Limba curenta',
     AppStrings.searchLanguages: 'Cauta limbi',
     AppStrings.food: 'Mancare',
@@ -754,7 +754,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Acik mod',
     AppStrings.darkMode: 'Koyu mod',
     AppStrings.chooseLanguageDescription:
-        'RoadyGo Rider\'da kullanmak istediginiz dili secin.',
+        'Vunigo\'da kullanmak istediginiz dili secin.',
     AppStrings.currentLanguage: 'Gecerli dil',
     AppStrings.searchLanguages: 'Dilleri ara',
     AppStrings.food: 'Yemek',
@@ -780,7 +780,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.lightMode: 'Svetlyy rezhim',
     AppStrings.darkMode: 'Temnyy rezhim',
     AppStrings.chooseLanguageDescription:
-        'Vyberite yazyk, kotoryy vy hotite ispolzovat v RoadyGo Rider.',
+        'Vyberite yazyk, kotoryy vy hotite ispolzovat v Vunigo.',
     AppStrings.currentLanguage: 'Tekushchiy yazyk',
     AppStrings.searchLanguages: 'Poisk yazykov',
     AppStrings.food: 'Eda',

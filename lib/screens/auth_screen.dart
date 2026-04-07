@@ -281,7 +281,7 @@ class _SignedOutScreenState extends State<SignedOutScreen> {
                 child: Opacity(
                   opacity: 0.2,
                   child: Image.asset(
-                    'assets/images/RoadyTaxi-image.png',
+                    'assets/images/Vunigo_logo.png',
                     width: MediaQuery.of(context).size.width * 0.6,
                     fit: BoxFit.contain,
                   ),
