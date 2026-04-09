@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
+import '../widgets/schedule_ride_sheet.dart';
 
 const _googleMapsApiKeyFallback = 'AIzaSyBzid8PyPK9S_eY3ymZLYo-iBNB01ShJYs';
 
@@ -34,41 +36,24 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   DateTime? _scheduledDate;
 
   Future<void> _pickScheduledDate() async {
-    final now = DateTime.now();
-    final date = await showDatePicker(
+    final result = await showModalBottomSheet<dynamic>(
       context: context,
-      initialDate: _scheduledDate ?? now,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 30)),
-    );
-    if (date == null) return;
-
-    if (!mounted) return;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_scheduledDate ?? now),
-    );
-    if (time == null) return;
-
-    final selected = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return ScheduleRideSheet(initialDate: _scheduledDate);
+      },
     );
 
-    if (selected.isBefore(now)) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot schedule in the past')),
-      );
-      return;
+    if (result == 'now') {
+      setState(() {
+        _scheduledDate = null;
+      });
+    } else if (result is DateTime) {
+      setState(() {
+        _scheduledDate = result;
+      });
     }
-
-    setState(() {
-      _scheduledDate = selected;
-    });
   }
 
   Future<void> _requestDriver() async {
@@ -525,14 +510,16 @@ class _AddressInputs extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE5E7EB),
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
+          width: 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            blurRadius: 16,
+            spreadRadius: 2,
             offset: const Offset(0, 4),
           ),
         ],
@@ -844,75 +831,117 @@ class _ServiceChipRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     const actionOrange = Color(0xFFF25E1C);
+    final bgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6);
+    final textColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF4B5563);
 
-    Widget chip(
-      String label, {
-      required bool selected,
-      required VoidCallback onTap,
-    }) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: selected
-                  ? actionOrange
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: selected
-                    ? actionOrange
-                    : actionOrange.withValues(alpha: 0.3),
-              ),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: actionOrange.withValues(alpha: 0.22),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Text(
-              label,
-              style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                color: selected ? Colors.white : actionOrange,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+    final selectedIndex = selectedService == _ServiceType.taxi
+        ? 0
+        : selectedService == _ServiceType.delivery
+            ? 1
+            : 2;
 
     return Align(
       alignment: Alignment.centerLeft,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(100),
+        ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            chip(
-              context.tr(AppStrings.taxi),
-              selected: selectedService == _ServiceType.taxi,
+            _buildTab(
+              context,
+              label: context.tr(AppStrings.taxi),
+              isSelected: selectedIndex == 0,
+              unselectedColor: textColor,
+              actionOrange: actionOrange,
               onTap: () => onSelected(_ServiceType.taxi),
             ),
-            const SizedBox(width: 10),
-            chip(
-              context.tr(AppStrings.delivery),
-              selected: selectedService == _ServiceType.delivery,
+            _buildTab(
+              context,
+              label: context.tr(AppStrings.delivery),
+              isSelected: selectedIndex == 1,
+              unselectedColor: textColor,
+              actionOrange: actionOrange,
               onTap: () => onSelected(_ServiceType.delivery),
             ),
-            const SizedBox(width: 10),
-            chip(
-              context.tr(AppStrings.cargo),
-              selected: selectedService == _ServiceType.cargo,
+            _buildTab(
+              context,
+              label: context.tr(AppStrings.cargo),
+              isSelected: selectedIndex == 2,
+              unselectedColor: textColor,
+              actionOrange: actionOrange,
               onTap: () => onSelected(_ServiceType.cargo),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(
+    BuildContext context, {
+    required String label,
+    required bool isSelected,
+    required Color unselectedColor,
+    required Color actionOrange,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? actionOrange : Colors.transparent,
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: actionOrange.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : [],
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              style: theme.textTheme.labelLarge!.copyWith(
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: isSelected ? Colors.white : unselectedColor,
+                    fontSize: 13,
+                    letterSpacing: -0.2,
+                  ),
+              child: Text(label),
+            ),
+            if (isSelected)
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  width: 14,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: theme.scaffoldBackgroundColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -940,73 +969,52 @@ class _VehicleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 210,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        constraints: const BoxConstraints(minWidth: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: selected ? Colors.white : const Color(0xFFF9FAFB),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected ? const Color(0xFFF97316) : const Color(0xFFE5E7EB),
             width: selected ? 2 : 1,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: selected ? 0.08 : 0.04),
+              blurRadius: selected ? 10 : 4,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(width: 50, child: Center(child: leading)),
             const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF6B7280),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.info_outline,
-                        size: 14,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Color(0xFF111827),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF111827),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: Color(0xFF111827),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Icon(
-              Icons.check_circle,
-              color: selected ? const Color(0xFFF97316) : Colors.transparent,
-              size: 20,
-            ),
+            const SizedBox(width: 4),
           ],
         ),
       ),
@@ -1117,45 +1125,16 @@ class _RidePreferencesRow extends StatelessWidget {
     }
     return Row(
       children: [
-        PopupMenuButton<String>(
-          offset: const Offset(0, 40),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          onSelected: (value) {
-            if (value == 'now') {
-              if (scheduledDate != null) {
-                onClearScheduled();
-              }
-            } else if (value == 'schedule') {
-              onTapNow();
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'now',
-              child: Text(
-                context.tr(AppStrings.now),
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-            PopupMenuItem(
-              value: 'schedule',
-              child: Text(
-                context.tr(AppStrings.scheduleAppointment),
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
+        GestureDetector(
+          onTap: onTapNow,
+          behavior: HitTestBehavior.opaque,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               _PreferenceButton(
                 icon: Icons.access_time_rounded,
                 label: label,
-                // Tap logic is now handled by the PopupMenuButton
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.keyboard_arrow_down_rounded,
-                  size: 20, color: Color(0xFF6B7280)),
               if (scheduledDate != null) ...[
                 const SizedBox(width: 4),
                 GestureDetector(
@@ -1309,7 +1288,10 @@ class _PickupButton extends StatelessWidget {
                 hasPickup && hasDropoff
                     ? context.tr(AppStrings.continueLabel)
                     : context.tr(AppStrings.setPickupPoint),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
       ),
     );
@@ -1655,3 +1637,5 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
     );
   }
 }
+
+

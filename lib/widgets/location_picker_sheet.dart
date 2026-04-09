@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../app/theme.dart';
 import '../app/localization.dart';
+import 'schedule_ride_sheet.dart';
+import 'package:intl/intl.dart';
 
 class LocationPickerSheet extends StatefulWidget {
   const LocationPickerSheet({super.key});
@@ -14,6 +16,7 @@ class LocationPickerSheet extends StatefulWidget {
 class _LocationPickerSheetState extends State<LocationPickerSheet> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
+  DateTime? _scheduledDate;
   
   // Dummy data for suggestions
   final List<Map<String, String>> _suggestions = [
@@ -97,14 +100,64 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
           children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              'Where to?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: colorScheme.onSurface,
-                letterSpacing: -0.5,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Where to?',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: colorScheme.onSurface,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    final result = await showModalBottomSheet<dynamic>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => ScheduleRideSheet(
+                        initialDate: _scheduledDate,
+                      ),
+                    );
+                    if (result == 'now') {
+                      setState(() => _scheduledDate = null);
+                    } else if (result is DateTime) {
+                      setState(() => _scheduledDate = result);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time_filled,
+                          size: 16,
+                          color: colorScheme.onSurface,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _scheduledDate != null
+                              ? DateFormat('h:mm a').format(_scheduledDate!)
+                              : 'Now',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -121,13 +174,15 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
-                        blurRadius: 10,
+                        color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+                        blurRadius: 16,
+                        spreadRadius: 2,
                         offset: const Offset(0, 4),
                       ),
                     ],
                     border: Border.all(
-                      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                      color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6),
+                      width: 0.5,
                     ),
                   ),
                   child: TextField(
@@ -146,8 +201,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                       ),
                       prefixIcon: Icon(
                         Icons.search_rounded,
-                        color: colorScheme.primary,
-                        size: 24,
+                        color: isDark ? const Color(0xFF64748B) : const Color(0xFF6B7280),
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -165,8 +219,13 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     ),
+                    onSubmitted: (value) {
+                      if (value.trim().isNotEmpty) {
+                        Navigator.of(context).pop(value.trim());
+                      }
+                    },
                     onChanged: (val) => setState(() {}),
-                ),
+                  ),
               ),
             ),
           ),
@@ -233,7 +292,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
                   icon: _getIconForType(suggestion['icon']!),
                   onTap: () {
                     // Navigate or select
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(suggestion['title']);
                   },
                 );
               },
