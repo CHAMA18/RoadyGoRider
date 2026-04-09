@@ -114,8 +114,8 @@ class _ScheduleRideSheetState extends State<ScheduleRideSheet> {
                   Navigator.pop(context, _selectedDate);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? Colors.white : Colors.black,
-                  foregroundColor: isDark ? Colors.black : Colors.white,
+                  backgroundColor: const Color(0xFFF97316),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

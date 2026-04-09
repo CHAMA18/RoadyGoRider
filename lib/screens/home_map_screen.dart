@@ -1081,22 +1081,6 @@ class _QuickJumpMenuState extends State<QuickJumpMenu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           DrawerRow(
-            icon: Icons.grid_view_rounded,
-            label: 'Services',
-            onTap: () {
-              Navigator.of(context).pop(); // Close drawer
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  transitionDuration: const Duration(milliseconds: 300),
-                  pageBuilder: (_, __, ___) => HomeMapScreen(onLogout: widget.onLogout),
-                  transitionsBuilder: (_, animation, __, child) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                ),
-              );
-            },
-          ),
-          DrawerRow(
             icon: Icons.person_outline_rounded,
             label: context.tr(AppStrings.profile),
             onTap: () =>

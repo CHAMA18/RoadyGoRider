@@ -313,7 +313,7 @@ const Map<String, Map<String, String>> _translations = {
         'Enter your phone number and password, then confirm with a secure verification code.',
     AppStrings.createAccountTitle: 'Create account',
     AppStrings.createAccountSubtitle:
-        'Create your Roady GO account and verify your phone to unlock premium access.',
+        'Create your Vunigo account and verify your phone to unlock premium access.',
     AppStrings.logIn: 'Log in',
     AppStrings.createAccount: 'Create account',
     AppStrings.fullName: 'Full name',

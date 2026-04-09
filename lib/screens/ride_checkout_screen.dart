@@ -11,6 +11,7 @@ import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 import '../widgets/schedule_ride_sheet.dart';
+import 'confirm_order_screen.dart';
 
 const _googleMapsApiKeyFallback = 'AIzaSyBzid8PyPK9S_eY3ymZLYo-iBNB01ShJYs';
 
@@ -132,15 +133,14 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   }
 
   Future<void> _pickPlace({required bool pickup}) async {
-    final selected = await showModalBottomSheet<_PlaceOption>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _PlacePickerSheet(
-        title: pickup
-            ? context.tr(AppStrings.setPickupAddress)
-            : context.tr(AppStrings.setDestinationAddress),
-        current: pickup ? _pickup : _dropoff,
+    final selected = await Navigator.of(context).push<_PlaceOption>(
+      MaterialPageRoute(
+        builder: (context) => _PlacePickerSheet(
+          title: pickup
+              ? context.tr(AppStrings.setPickupAddress)
+              : context.tr(AppStrings.setDestinationAddress),
+          current: pickup ? _pickup : _dropoff,
+        ),
       ),
     );
 
@@ -212,7 +212,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                                   onPickupTap: () => _pickPlace(pickup: true),
                                   onDropoffTap: () => _pickPlace(pickup: false),
                                 ),
-                                const SizedBox(height: 14),
+                                const SizedBox(height: 16),
                                 _ServiceChipRow(
                                   selectedService: _selectedService,
                                   onSelected: (service) {
@@ -221,7 +221,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                                     });
                                   },
                                 ),
-                                const SizedBox(height: 18),
+                                const SizedBox(height: 12),
                                 _VehicleSlider(
                                   selectedService: _selectedService,
                                   selectedTaxiTier: _selectedTaxiTier,
@@ -251,18 +251,18 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                                     });
                                   },
                                 ),
-                                const SizedBox(height: 14),
+                                const SizedBox(height: 20),
                                 _RidePreferencesRow(
                                   scheduledDate: _scheduledDate,
                                   onTapNow: _pickScheduledDate,
                                   onClearScheduled: () => setState(() => _scheduledDate = null),
                                 ),
-                                const SizedBox(height: 18),
+                                const SizedBox(height: 20),
                                 _PickupButton(
                                   hasPickup: _pickup != null,
                                   hasDropoff: _dropoff != null,
                                   isLoading: _isRequesting,
-                                  onTap: () {
+                                  onTap: () async {
                                     if (_pickup == null) {
                                       _pickPlace(pickup: true);
                                       return;
@@ -271,7 +271,18 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                                       _pickPlace(pickup: false);
                                       return;
                                     }
-                                    _requestDriver();
+                                    final confirmed = await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(
+                                        builder: (_) => ConfirmOrderScreen(
+                                          targetLocation: _pickup!.latLng,
+                                          cityName: _pickup!.title,
+                                          price: '140 ZMW',
+                                        ),
+                                      ),
+                                    );
+                                    if (confirmed == true && mounted) {
+                                      _requestDriver();
+                                    }
                                   },
                                 ),
                                 const SizedBox(height: 12),
@@ -428,23 +439,23 @@ class _CloseMapButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.10),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: const Icon(
-          Icons.close_rounded,
-          size: 22,
-          color: Color(0xFF1F2937),
+          Icons.close,
+          size: 24,
+          color: Color(0xFF1A1A1A),
         ),
       ),
     );
@@ -458,24 +469,58 @@ class _EtaMapPointer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Transform.translate(
-        offset: const Offset(0, -20),
+        offset: const Offset(0, -60),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: Color(0xFF1A1A1A),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    '6',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      height: 1.0,
+                    ),
+                  ),
+                  Text(
+                    'min',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      height: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Container(
               width: 32,
               height: 32,
-              decoration: const BoxDecoration(
-                color: Color(0xFF18181B),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A1A),
                 shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
               ),
               alignment: Alignment.center,
               child: const Text(
                 'A',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -507,19 +552,19 @@ class _AddressInputs extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
-          width: 0.5,
+          color: const Color(0xFFF0F0F0),
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-            blurRadius: 16,
-            spreadRadius: 2,
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            spreadRadius: 0,
             offset: const Offset(0, 4),
           ),
         ],
@@ -527,16 +572,16 @@ class _AddressInputs extends StatelessWidget {
       child: Column(
         children: [
           _AddressRow(
-            markerColor: Color(0xFF18181B),
+            markerColor: const Color(0xFF1A1A1A),
             markerLabel: 'A',
             label: pickupLabel,
-            labelColor: theme.colorScheme.onSurface,
+            labelColor: const Color(0xFF1A1A1A),
             showDivider: true,
             onTap: onPickupTap,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _AddressRow(
-            markerColor: Color(0xFFF97316),
+            markerColor: const Color(0xFFF97316),
             markerLabel: 'B',
             label: dropoffLabel,
             labelColor: _dropoffColor(context, dropoffLabel),
@@ -549,12 +594,11 @@ class _AddressInputs extends StatelessWidget {
   }
 
   Color _dropoffColor(BuildContext context, String label) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPlaceholder = label == context.tr(AppStrings.dropOffAddress);
     if (!isPlaceholder) {
-      return Theme.of(context).colorScheme.onSurface;
+      return const Color(0xFF1A1A1A);
     }
-    return isDark ? const Color(0xFF94A3B8) : const Color(0xFF9CA3AF);
+    return const Color(0xFF9CA3AF);
   }
 }
 
@@ -577,9 +621,6 @@ class _AddressRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor = Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xFF1E293B)
-        : const Color(0xFFF3F4F6);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -588,8 +629,8 @@ class _AddressRow extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 24,
-                height: 24,
+                width: 28,
+                height: 28,
                 decoration: BoxDecoration(
                   color: markerColor,
                   shape: BoxShape.circle,
@@ -599,34 +640,28 @@ class _AddressRow extends StatelessWidget {
                   markerLabel,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
                     color: labelColor,
-                    fontSize: AppTypography.size,
+                    fontSize: 17,
                     fontWeight: FontWeight.w500,
+                    height: 1.3,
                   ),
                 ),
-              ),
-              Icon(
-                Icons.search_rounded,
-                size: 20,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? const Color(0xFF94A3B8)
-                    : const Color(0xFF9CA3AF),
               ),
             ],
           ),
           if (showDivider) ...[
-            const SizedBox(height: 12),
-            Divider(height: 1, color: dividerColor, indent: 36),
+            const SizedBox(height: 14),
+            const Divider(height: 1, color: Color(0xFFF0F0F0), indent: 42),
           ],
         ],
       ),
@@ -813,8 +848,12 @@ class _VehicleSlider extends StatelessWidget {
           ];
 
     return SizedBox(
-      height: 76,
-      child: ListView(scrollDirection: Axis.horizontal, children: children),
+      height: 90,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        children: children,
+      ),
     );
   }
 }
@@ -828,124 +867,117 @@ class _ServiceChipRow extends StatelessWidget {
   final _ServiceType selectedService;
   final ValueChanged<_ServiceType> onSelected;
 
+  static const _tabs = [_ServiceType.taxi, _ServiceType.delivery, _ServiceType.cargo];
+
+  int get _selectedIndex => _tabs.indexOf(selectedService);
+
+  IconData _iconForService(_ServiceType type) {
+    switch (type) {
+      case _ServiceType.taxi:
+        return Icons.local_taxi_rounded;
+      case _ServiceType.delivery:
+        return Icons.delivery_dining_rounded;
+      case _ServiceType.cargo:
+        return Icons.local_shipping_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    const actionOrange = Color(0xFFF25E1C);
-    final bgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6);
-    final textColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF4B5563);
-
-    final selectedIndex = selectedService == _ServiceType.taxi
-        ? 0
-        : selectedService == _ServiceType.delivery
-            ? 1
-            : 2;
+    const primaryOrange = Color(0xFFF97316);
+    final bgColor = isDark ? const Color(0xFF1A1D23) : const Color(0xFFF1F5F9);
+    final inactiveText = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        height: 44,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildTab(
-              context,
-              label: context.tr(AppStrings.taxi),
-              isSelected: selectedIndex == 0,
-              unselectedColor: textColor,
-              actionOrange: actionOrange,
-              onTap: () => onSelected(_ServiceType.taxi),
-            ),
-            _buildTab(
-              context,
-              label: context.tr(AppStrings.delivery),
-              isSelected: selectedIndex == 1,
-              unselectedColor: textColor,
-              actionOrange: actionOrange,
-              onTap: () => onSelected(_ServiceType.delivery),
-            ),
-            _buildTab(
-              context,
-              label: context.tr(AppStrings.cargo),
-              isSelected: selectedIndex == 2,
-              unselectedColor: textColor,
-              actionOrange: actionOrange,
-              onTap: () => onSelected(_ServiceType.cargo),
-            ),
-          ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: screenWidth * 0.65),
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final tabWidth = (constraints.maxWidth - 4) / 3;
+              return Stack(
+                children: [
+                  // Animated sliding indicator
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    left: 2 + (_selectedIndex * tabWidth),
+                    top: 0,
+                    bottom: 0,
+                    width: tabWidth - 2,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: primaryOrange,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                  // Tab buttons
+                  Row(
+                    children: List.generate(3, (index) {
+                      final type = _tabs[index];
+                      final isSelected = index == _selectedIndex;
+
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => onSelected(type),
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            height: double.infinity,
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  _iconForService(type),
+                                  size: 14,
+                                  color: isSelected ? Colors.white : inactiveText,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _labelForService(context, type),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected ? Colors.white : inactiveText,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTab(
-    BuildContext context, {
-    required String label,
-    required bool isSelected,
-    required Color unselectedColor,
-    required Color actionOrange,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: isSelected ? actionOrange : Colors.transparent,
-          borderRadius: BorderRadius.circular(100),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: actionOrange.withValues(alpha: 0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutCubic,
-              style: theme.textTheme.labelLarge!.copyWith(
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? Colors.white : unselectedColor,
-                    fontSize: 13,
-                    letterSpacing: -0.2,
-                  ),
-              child: Text(label),
-            ),
-            if (isSelected)
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  width: 14,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: theme.scaffoldBackgroundColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(4),
-                      topRight: Radius.circular(4),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+  String _labelForService(BuildContext context, _ServiceType type) {
+    switch (type) {
+      case _ServiceType.taxi:
+        return context.tr(AppStrings.taxi);
+      case _ServiceType.delivery:
+        return context.tr(AppStrings.delivery);
+      case _ServiceType.cargo:
+        return context.tr(AppStrings.cargo);
+    }
   }
 }
 
@@ -969,52 +1001,59 @@ class _VehicleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        constraints: const BoxConstraints(minWidth: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        width: 200,
+        height: 86,
+        padding: const EdgeInsets.fromLTRB(10, 12, 16, 12),
         decoration: BoxDecoration(
-          color: selected ? Colors.white : const Color(0xFFF9FAFB),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? const Color(0xFFF97316) : const Color(0xFFE5E7EB),
-            width: selected ? 2 : 1,
+            color: selected ? const Color(0xFFF97316) : const Color(0xFFE8E8E8),
+            width: selected ? 2.0 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: selected ? 0.08 : 0.04),
-              blurRadius: selected ? 10 : 4,
-              offset: const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(width: 50, child: Center(child: leading)),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Color(0xFF111827),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF111827),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
+            SizedBox(
+              width: 72,
+              height: 56,
+              child: leading,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Color(0xFF1A1A1A),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Color(0xFF1A1A1A),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -1025,9 +1064,9 @@ class _VehicleCard extends StatelessWidget {
 class _ServiceImageThumbnail extends StatelessWidget {
   const _ServiceImageThumbnail({
     required this.assetPath,
-    this.width = 68,
-    this.height = 42,
-    this.padding = const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+    this.width = 72,
+    this.height = 56,
+    this.padding = EdgeInsets.zero,
     this.imageScale = 1.0,
   });
 
@@ -1039,23 +1078,13 @@ class _ServiceImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      width: width,
-      height: height,
-      padding: padding,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Transform.scale(
-        scale: imageScale,
-        child: Image.asset(
-          assetPath,
-          fit: BoxFit.contain,
-          alignment: Alignment.center,
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.asset(
+        assetPath,
+        width: width,
+        height: height,
+        fit: BoxFit.contain,
       ),
     );
   }
@@ -1068,11 +1097,14 @@ class _TaxiImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _ServiceImageThumbnail(
-      assetPath: assetPath,
-      width: 60,
-      height: 40,
-      imageScale: 1.2,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.asset(
+        assetPath,
+        width: 72,
+        height: 56,
+        fit: BoxFit.contain,
+      ),
     );
   }
 }
@@ -1131,29 +1163,64 @@ class _RidePreferencesRow extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _PreferenceButton(
-                icon: Icons.access_time_rounded,
-                label: label,
+              Icon(
+                Icons.access_time_rounded,
+                size: 22,
+                color: const Color(0xFF1A1A1A),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFF1A1A1A),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               if (scheduledDate != null) ...[
-                const SizedBox(width: 4),
+                const SizedBox(width: 8),
                 GestureDetector(
                   onTap: onClearScheduled,
                   behavior: HitTestBehavior.opaque,
-                  child: const Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: Icon(Icons.close, size: 18, color: Color(0xFF6B7280)),
-                  ),
+                  child: const Icon(Icons.close, size: 18, color: Color(0xFF6B7280)),
                 ),
               ],
             ],
           ),
         ),
-        Spacer(),
-        _PreferenceButton(
-          icon: Icons.payments_outlined,
-          label: context.tr(AppStrings.cash),
-          useChip: true,
+        const Spacer(),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8E8E8),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFD0D0D0), width: 1),
+              ),
+              child: Center(
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1A1A1A),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              context.tr(AppStrings.cash),
+              style: const TextStyle(
+                color: Color(0xFF1A1A1A),
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -1264,15 +1331,16 @@ class _PickupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 56,
       child: ElevatedButton(
         onPressed: isLoading ? null : onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF25E1C),
+          backgroundColor: const Color(0xFFF97316),
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: isLoading
@@ -1289,8 +1357,9 @@ class _PickupButton extends StatelessWidget {
                     ? context.tr(AppStrings.continueLabel)
                     : context.tr(AppStrings.setPickupPoint),
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.2,
                 ),
               ),
       ),
@@ -1480,103 +1549,152 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
           place.subtitle.toLowerCase().contains(q);
     }).toList();
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.72,
-      minChildSize: 0.52,
-      maxChildSize: 0.92,
-      builder: (context, controller) {
-        return Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Container(
-                width: 46,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF475569)
-                      : const Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.circular(999),
+    String formattedTitle = widget.title;
+    if (formattedTitle.toLowerCase().startsWith('set ')) {
+      formattedTitle = formattedTitle.substring(4);
+    } else if (formattedTitle.toLowerCase().startsWith('vendos ')) {
+      formattedTitle = formattedTitle.substring(7);
+    }
+    if (formattedTitle.isNotEmpty) {
+      formattedTitle = formattedTitle[0].toUpperCase() + formattedTitle.substring(1);
+    }
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            // Top close button
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFE5E7EB),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: colorScheme.onSurface,
+                    size: 24,
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: TextStyle(
-                        color: colorScheme.onSurface,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                      ),
+            ),
+            const SizedBox(height: 32),
+            // The text field with orange label
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    formattedTitle,
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 14),
-                    TextField(
-                      controller: _searchController,
-                      onChanged: (value) => setState(() => _query = value),
-                      autofocus: true,
-                      cursorColor: colorScheme.onSurface,
+                  ),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: _searchController,
+                    onChanged: (value) => setState(() => _query = value),
+                    autofocus: true,
+                    cursorColor: colorScheme.primary,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                      isDense: true,
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.primary, width: 1),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.primary, width: 1),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                      ),
+                      suffixIconConstraints: const BoxConstraints(minHeight: 24, minWidth: 24),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () {
+                                _searchController.clear();
+                                setState(() => _query = '');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF475569) : const Color(0xFF9CA3AF),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    color: theme.scaffoldBackgroundColor,
+                                    size: 14,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Set point on map option
+            InkWell(
+              onTap: () {
+                // Action for setting point on map
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.map_outlined,
+                      color: colorScheme.onSurface,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      'Set point on map',
                       style: TextStyle(
                         color: colorScheme.onSurface,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: context.tr(AppStrings.searchForAPlace),
-                        hintStyle: TextStyle(
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF9CA3AF),
-                        ),
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        filled: true,
-                        fillColor: isDark
-                            ? const Color(0xFF111827)
-                            : const Color(0xFFF8FAFC),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF334155)
-                                : const Color(0xFFE5E7EB),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF334155)
-                                : const Color(0xFFE5E7EB),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(
-                            color: colorScheme.primary,
-                            width: 1.5,
-                          ),
-                        ),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            // The list of filtered places
+            if (filtered.isNotEmpty)
               Expanded(
                 child: ListView.separated(
-                  controller: controller,
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                   itemCount: filtered.length,
                   separatorBuilder: (context, index) => Divider(
                     height: 1,
-                    color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF3F4F6),
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
                   ),
                   itemBuilder: (context, index) {
                     final place = filtered[index];
@@ -1590,16 +1708,12 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
                         decoration: BoxDecoration(
                           color: selected
                               ? colorScheme.primary.withValues(alpha: 0.12)
-                              : (isDark
-                                    ? const Color(0xFF111827)
-                                    : const Color(0xFFF8FAFC)),
+                              : (isDark ? const Color(0xFF111827) : const Color(0xFFF8FAFC)),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.place_outlined,
-                          color: selected
-                              ? colorScheme.primary
-                              : colorScheme.onSurface,
+                          color: selected ? colorScheme.primary : colorScheme.onSurface,
                         ),
                       ),
                       title: Text(
@@ -1613,9 +1727,7 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
                       subtitle: Text(
                         place.subtitle,
                         style: TextStyle(
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF6B7280),
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF6B7280),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -1630,10 +1742,9 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
                   },
                 ),
               ),
-            ],
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

@@ -97,42 +97,19 @@ class _OrderNowSplashScreenState extends State<OrderNowSplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // A circular white background for the logo/icon
+                    // Logo
                     Container(
-                      width: 120,
-                      height: 120,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 20,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: ClipOval(
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Image.asset(
-                            'assets/images/Vunigo_logo.png',
-                            fit: BoxFit.contain,
-                          ),
+                      width: 150,
+                      height: 150,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Image.asset(
+                          'assets/images/Vunigo_logo.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
                     const SizedBox(height: 32),
-                    const Text(
-                      'RoadyGo',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () {
                         if (!_navigated) {
