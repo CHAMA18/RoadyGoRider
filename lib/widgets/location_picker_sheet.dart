@@ -84,24 +84,36 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
     final colorScheme = theme.colorScheme;
     final mq = MediaQuery.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: colorScheme.onSurface),
-          onPressed: () => Navigator.of(context).pop(),
+    return Container(
+      height: mq.size.height * 0.92,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: const [0.0, 0.12],
+          colors: [
+            theme.scaffoldBackgroundColor.withValues(alpha: 0.0),
+            theme.scaffoldBackgroundColor,
+          ],
         ),
       ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Material(
+        type: MaterialType.transparency,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: IconButton(
+                  icon: Icon(Icons.keyboard_arrow_down_rounded, size: 32, color: colorScheme.onSurface),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Where to?',
@@ -299,6 +311,7 @@ class _LocationPickerSheetState extends State<LocationPickerSheet> {
             ),
           ),
         ],
+      ),
       ),
       ),
     );

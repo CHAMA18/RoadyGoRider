@@ -36,6 +36,10 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   String? _currentRideId;
   DateTime? _scheduledDate;
 
+  bool _isPickingOnMap = false;
+  bool _pickingForPickup = false;
+  LatLng _mapPickCenter = const LatLng(-15.4067, 28.2871);
+
   Future<void> _pickScheduledDate() async {
     final result = await showModalBottomSheet<dynamic>(
       context: context,
@@ -133,7 +137,7 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
   }
 
   Future<void> _pickPlace({required bool pickup}) async {
-    final selected = await Navigator.of(context).push<_PlaceOption>(
+    final selected = await Navigator.of(context).push<dynamic>(
       MaterialPageRoute(
         builder: (context) => _PlacePickerSheet(
           title: pickup
@@ -148,13 +152,164 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
       return;
     }
 
-    setState(() {
-      if (pickup) {
-        _pickup = selected;
-      } else {
-        _dropoff = selected;
-      }
-    });
+    if (selected == '__map_pick__') {
+      setState(() {
+        _isPickingOnMap = true;
+        _pickingForPickup = pickup;
+      });
+      return;
+    }
+
+    if (selected is _PlaceOption) {
+      setState(() {
+        if (pickup) {
+          _pickup = selected;
+        } else {
+          _dropoff = selected;
+        }
+      });
+    }
+  }
+
+  String _getSelectedPrice() {
+    switch (_selectedService) {
+      case _ServiceType.taxi:
+        switch (_selectedTaxiTier) {
+          case _TaxiTier.standard:
+            return '26–32 ₺';
+          case _TaxiTier.comfort:
+            return '38–44 ₺';
+          case _TaxiTier.vip:
+            return '55–68 ₺';
+        }
+      case _ServiceType.delivery:
+        switch (_selectedDeliveryTier) {
+          case _DeliveryTier.bicycleCourier:
+            return '15–20 ₺';
+          case _DeliveryTier.motorcycleCourier:
+            return '20–30 ₺';
+        }
+      case _ServiceType.cargo:
+        switch (_selectedCargoTier) {
+          case _CargoTier.minivan:
+            return '40–55 ₺';
+          case _CargoTier.panelVan:
+            return '70–90 ₺';
+          case _CargoTier.lightTruck:
+            return '120–150 ₺';
+        }
+    }
+  }
+
+  List<Widget> _buildVehicleOptions() {
+    switch (_selectedService) {
+      case _ServiceType.taxi:
+        return [
+          _VehicleCard(
+            selected: _selectedTaxiTier == _TaxiTier.standard,
+            title: 'Standard',
+            price: '26–32 ₺',
+            assetPath: 'assets/images/IMG_0185.jpg',
+            timeAway: '3 min away',
+            driverName: 'BLF 2581',
+            subtitle: 'Affordable • Toyota Corolla',
+            iconData: Icons.local_taxi_rounded,
+            iconColor: const Color(0xFFF97316),
+            onTap: () => setState(() => _selectedTaxiTier = _TaxiTier.standard),
+          ),
+          const SizedBox(height: 12),
+          _VehicleCard(
+            selected: _selectedTaxiTier == _TaxiTier.comfort,
+            title: 'Comfort',
+            price: '38–44 ₺',
+            assetPath: 'assets/images/car_plus.jpg',
+            timeAway: '5 min away',
+            subtitle: 'Comfortable • Mercedes-Benz',
+            iconData: Icons.directions_car_rounded,
+            iconColor: const Color(0xFF9CA3AF),
+            onTap: () => setState(() => _selectedTaxiTier = _TaxiTier.comfort),
+          ),
+          const SizedBox(height: 12),
+          _VehicleCard(
+            selected: _selectedTaxiTier == _TaxiTier.vip,
+            title: 'Premium',
+            price: '55–68 ₺',
+            assetPath: 'assets/images/car_business.jpg',
+            timeAway: '4 min away',
+            subtitle: 'Luxury • Black Sedan',
+            iconData: Icons.directions_car_rounded,
+            iconColor: const Color(0xFF9CA3AF),
+            onTap: () => setState(() => _selectedTaxiTier = _TaxiTier.vip),
+          ),
+          const SizedBox(height: 24),
+        ];
+      case _ServiceType.delivery:
+        return [
+          _VehicleCard(
+            selected: _selectedDeliveryTier == _DeliveryTier.bicycleCourier,
+            title: 'Bicycle Courier',
+            price: '15–20 ₺',
+            assetPath: 'assets/images/bicycle.jpg',
+            timeAway: '5 min away',
+            subtitle: 'Eco-friendly • Small items',
+            iconData: Icons.pedal_bike_rounded,
+            iconColor: const Color(0xFFF97316),
+            onTap: () => setState(() => _selectedDeliveryTier = _DeliveryTier.bicycleCourier),
+          ),
+          const SizedBox(height: 12),
+          _VehicleCard(
+            selected: _selectedDeliveryTier == _DeliveryTier.motorcycleCourier,
+            title: 'Motorcycle Courier',
+            price: '20–30 ₺',
+            assetPath: 'assets/images/co-bike.jpg',
+            timeAway: '3 min away',
+            subtitle: 'Fast • Medium items',
+            iconData: Icons.two_wheeler_rounded,
+            iconColor: const Color(0xFF9CA3AF),
+            onTap: () => setState(() => _selectedDeliveryTier = _DeliveryTier.motorcycleCourier),
+          ),
+          const SizedBox(height: 24),
+        ];
+      case _ServiceType.cargo:
+        return [
+          _VehicleCard(
+            selected: _selectedCargoTier == _CargoTier.minivan,
+            title: 'Minivan',
+            price: '40–55 ₺',
+            assetPath: 'assets/images/small_truck.jpg',
+            timeAway: '10 min away',
+            subtitle: 'Small moves • Few boxes',
+            iconData: Icons.airport_shuttle_rounded,
+            iconColor: const Color(0xFFF97316),
+            onTap: () => setState(() => _selectedCargoTier = _CargoTier.minivan),
+          ),
+          const SizedBox(height: 12),
+          _VehicleCard(
+            selected: _selectedCargoTier == _CargoTier.panelVan,
+            title: 'Panel Van',
+            price: '70–90 ₺',
+            assetPath: 'assets/images/mid-truck.jpg',
+            timeAway: '15 min away',
+            subtitle: 'Medium moves • Furniture',
+            iconData: Icons.local_shipping_rounded,
+            iconColor: const Color(0xFF9CA3AF),
+            onTap: () => setState(() => _selectedCargoTier = _CargoTier.panelVan),
+          ),
+          const SizedBox(height: 12),
+          _VehicleCard(
+            selected: _selectedCargoTier == _CargoTier.lightTruck,
+            title: 'Light Truck',
+            price: '120–150 ₺',
+            assetPath: 'assets/images/large_truck.jpg',
+            timeAway: '25 min away',
+            subtitle: 'Large moves • Full house',
+            iconData: Icons.fire_truck_rounded,
+            iconColor: const Color(0xFF9CA3AF),
+            onTap: () => setState(() => _selectedCargoTier = _CargoTier.lightTruck),
+          ),
+          const SizedBox(height: 24),
+        ];
+    }
   }
 
   @override
@@ -166,135 +321,337 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          const Positioned.fill(child: _RideCheckoutMap()),
-          SafeArea(
-            bottom: false,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 18,
-                  left: 20,
-                  child: _CloseMapButton(
-                    onTap: () => Navigator.of(context).maybePop(),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          colorScheme.surface.withValues(alpha: 0.0),
-                          colorScheme.surface,
-                          colorScheme.surface,
-                        ],
-                        stops: const [0.0, 0.15, 1.0],
-                      ),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16, 40, 16, MediaQuery.paddingOf(context).bottom > 0 ? MediaQuery.paddingOf(context).bottom : 16),
-                      child: _isSearchingForDriver
-                          ? _SearchingDriverView(onCancel: _cancelRequest)
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _AddressInputs(
-                                  pickupLabel:
-                                      _pickup?.title ??
-                                      context.tr(AppStrings.setPickupPoint),
-                                  dropoffLabel:
-                                      _dropoff?.title ??
-                                      context.tr(AppStrings.dropOffAddress),
-                                  onPickupTap: () => _pickPlace(pickup: true),
-                                  onDropoffTap: () => _pickPlace(pickup: false),
-                                ),
-                                const SizedBox(height: 16),
-                                _ServiceChipRow(
-                                  selectedService: _selectedService,
-                                  onSelected: (service) {
-                                    setState(() {
-                                      _selectedService = service;
-                                    });
-                                  },
-                                ),
-                                const SizedBox(height: 12),
-                                _VehicleSlider(
-                                  selectedService: _selectedService,
-                                  selectedTaxiTier: _selectedTaxiTier,
-                                  selectedDeliveryTier: _selectedDeliveryTier,
-                                  selectedCargoTier: _selectedCargoTier,
-                                  onSelected: (service) {
-                                    setState(() {
-                                      _selectedService = service;
-                                    });
-                                  },
-                                  onTaxiTierSelected: (tier) {
-                                    setState(() {
-                                      _selectedService = _ServiceType.taxi;
-                                      _selectedTaxiTier = tier;
-                                    });
-                                  },
-                                  onDeliveryTierSelected: (tier) {
-                                    setState(() {
-                                      _selectedService = _ServiceType.delivery;
-                                      _selectedDeliveryTier = tier;
-                                    });
-                                  },
-                                  onCargoTierSelected: (tier) {
-                                    setState(() {
-                                      _selectedService = _ServiceType.cargo;
-                                      _selectedCargoTier = tier;
-                                    });
-                                  },
-                                ),
-                                const SizedBox(height: 20),
-                                _RidePreferencesRow(
-                                  scheduledDate: _scheduledDate,
-                                  onTapNow: _pickScheduledDate,
-                                  onClearScheduled: () => setState(() => _scheduledDate = null),
-                                ),
-                                const SizedBox(height: 20),
-                                _PickupButton(
-                                  hasPickup: _pickup != null,
-                                  hasDropoff: _dropoff != null,
-                                  isLoading: _isRequesting,
-                                  onTap: () async {
-                                    if (_pickup == null) {
-                                      _pickPlace(pickup: true);
-                                      return;
-                                    }
-                                    if (_dropoff == null) {
-                                      _pickPlace(pickup: false);
-                                      return;
-                                    }
-                                    final confirmed = await Navigator.of(context).push<bool>(
-                                      MaterialPageRoute(
-                                        builder: (_) => ConfirmOrderScreen(
-                                          targetLocation: _pickup!.latLng,
-                                          cityName: _pickup!.title,
-                                          price: '140 ZMW',
-                                        ),
-                                      ),
-                                    );
-                                    if (confirmed == true && mounted) {
-                                      _requestDriver();
-                                    }
-                                  },
-                                ),
-                                const SizedBox(height: 12),
-                              ],
-                            ),
-                    ),
-                  ),
-                ),
-              ],
+          Positioned.fill(
+            child: _RideCheckoutMap(
+              isPickingMode: _isPickingOnMap,
+              onCameraMove: (position) {
+                if (_isPickingOnMap) {
+                  _mapPickCenter = position.target;
+                }
+              },
             ),
           ),
+          
+          if (!_isSearchingForDriver) ...[
+            // Map Zoom Controls
+            if (!_isPickingOnMap)
+              Positioned(
+                right: 16,
+                top: MediaQuery.of(context).size.height * 0.35,
+                child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () {},
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Icon(Icons.add, size: 24, color: Color(0xFF1A1A1A)),
+                      ),
+                    ),
+                    Container(width: 24, height: 1, color: const Color(0xFFE5E7EB)),
+                    InkWell(
+                      onTap: () {},
+                      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Icon(Icons.remove, size: 24, color: Color(0xFF1A1A1A)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Top Content (Back button)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () {
+                        if (_isPickingOnMap) {
+                          setState(() {
+                            _isPickingOnMap = false;
+                          });
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            if (_isPickingOnMap)
+              // Confirm Location Button for Map Picking Mode
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24).copyWith(bottom: MediaQuery.of(context).padding.bottom + 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        final newPlace = _PlaceOption(
+                          title: 'Selected Location',
+                          subtitle: '${_mapPickCenter.latitude.toStringAsFixed(4)}, ${_mapPickCenter.longitude.toStringAsFixed(4)}',
+                          latLng: _mapPickCenter,
+                        );
+                        if (_pickingForPickup) {
+                          _pickup = newPlace;
+                        } else {
+                          _dropoff = newPlace;
+                        }
+                        _isPickingOnMap = false;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF97316),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Confirm Location',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              // Bottom Sheet Content
+              Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 12),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFCBD5E1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _AddressInputs(
+                          pickupLabel: _pickup?.title ?? context.tr(AppStrings.setPickupAddress),
+                          dropoffLabel: _dropoff?.title ?? context.tr(AppStrings.setDestinationAddress),
+                          onPickupTap: () => _pickPlace(pickup: true),
+                          onDropoffTap: () => _pickPlace(pickup: false),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Service Type Tabs
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE2E8F0),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: _ServiceType.values.map((type) {
+                              final isSelected = _selectedService == type;
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _selectedService = type),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(alpha: 0.05),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              )
+                                            ]
+                                          : null,
+                                    ),
+                                    child: Text(
+                                      type.name[0].toUpperCase() + type.name.substring(1),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                        color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 320,
+                        child: ListView(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: _buildVehicleOptions(),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: _PickupButton(
+                          hasPickup: _pickup != null,
+                          hasDropoff: _dropoff != null,
+                          isLoading: _isRequesting,
+                          onTap: () async {
+                            if (_pickup == null) {
+                              _pickPlace(pickup: true);
+                              return;
+                            }
+                            if (_dropoff == null) {
+                              _pickPlace(pickup: false);
+                              return;
+                            }
+                            final confirmed = await Navigator.of(context).push<bool>(
+                              MaterialPageRoute(
+                                builder: (_) => ConfirmOrderScreen(
+                                  targetLocation: _pickup!.latLng,
+                                  cityName: _pickup!.title,
+                                  price: _getSelectedPrice(),
+                                ),
+                              ),
+                            );
+                            if (confirmed == true && mounted) {
+                              _requestDriver();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+          
+          if (_isSearchingForDriver)
+            Positioned.fill(
+              child: Container(
+                color: theme.scaffoldBackgroundColor.withValues(alpha: 0.95),
+                child: SafeArea(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: _SearchingDriverView(onCancel: _cancelRequest),
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _TopTab extends StatelessWidget {
+  const _TopTab({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? const Color(0xFFF97316) : const Color(0xFF9CA3AF),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? const Color(0xFF1A1A1A) : const Color(0xFF6B7280),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -309,22 +666,44 @@ enum _DeliveryTier { bicycleCourier, motorcycleCourier }
 enum _CargoTier { minivan, panelVan, lightTruck }
 
 class _RideCheckoutMap extends StatelessWidget {
-  const _RideCheckoutMap();
+  const _RideCheckoutMap({this.onCameraMove, this.isPickingMode = false});
+  final void Function(CameraPosition)? onCameraMove;
+  final bool isPickingMode;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: const [
-        Positioned.fill(child: _RideMapView()),
-        Positioned.fill(child: IgnorePointer(child: _MapGridOverlay())),
-        Positioned.fill(child: IgnorePointer(child: _EtaMapPointer())),
+      children: [
+        Positioned.fill(child: _RideMapView(onCameraMove: onCameraMove)),
+        if (!isPickingMode) const Positioned.fill(child: IgnorePointer(child: _MapGridOverlay())),
+        if (!isPickingMode) const Positioned.fill(child: IgnorePointer(child: _EtaMapPointer())),
+        if (isPickingMode) const Positioned.fill(child: IgnorePointer(child: _CenterPickPointer())),
       ],
     );
   }
 }
 
+class _CenterPickPointer extends StatelessWidget {
+  const _CenterPickPointer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Transform.translate(
+        offset: const Offset(0, -20),
+        child: const Icon(
+          Icons.location_on,
+          size: 40,
+          color: Color(0xFFF97316),
+        ),
+      ),
+    );
+  }
+}
+
 class _RideMapView extends StatefulWidget {
-  const _RideMapView();
+  const _RideMapView({this.onCameraMove});
+  final void Function(CameraPosition)? onCameraMove;
 
   @override
   State<_RideMapView> createState() => _RideMapViewState();
@@ -371,6 +750,7 @@ class _RideMapViewState extends State<_RideMapView> {
     return GoogleMap(
       onMapCreated: (controller) => _controller = controller,
       initialCameraPosition: CameraPosition(target: _initialTarget, zoom: 14.8),
+      onCameraMove: widget.onCameraMove,
       myLocationButtonEnabled: true,
       myLocationEnabled: true,
       zoomControlsEnabled: true,
@@ -549,435 +929,142 @@ class _AddressInputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFF0F0F0),
-          width: 1,
-        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _AddressRow(
-            markerColor: const Color(0xFF1A1A1A),
-            markerLabel: 'A',
-            label: pickupLabel,
-            labelColor: const Color(0xFF1A1A1A),
-            showDivider: true,
-            onTap: onPickupTap,
-          ),
-          const SizedBox(height: 14),
-          _AddressRow(
-            markerColor: const Color(0xFFF97316),
-            markerLabel: 'B',
-            label: dropoffLabel,
-            labelColor: _dropoffColor(context, dropoffLabel),
-            showDivider: false,
-            onTap: onDropoffTap,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _dropoffColor(BuildContext context, String label) {
-    final isPlaceholder = label == context.tr(AppStrings.dropOffAddress);
-    if (!isPlaceholder) {
-      return const Color(0xFF1A1A1A);
-    }
-    return const Color(0xFF9CA3AF);
-  }
-}
-
-class _AddressRow extends StatelessWidget {
-  const _AddressRow({
-    required this.markerColor,
-    required this.markerLabel,
-    required this.label,
-    required this.labelColor,
-    required this.showDivider,
-    required this.onTap,
-  });
-
-  final Color markerColor;
-  final String markerLabel;
-  final String label;
-  final Color labelColor;
-  final bool showDivider;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Column(
-        children: [
-          Row(
+          Column(
             children: [
+              const SizedBox(height: 4),
               Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: markerColor,
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1A1A1A),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  markerLabel,
-                  style: const TextStyle(
+                child: const Text(
+                  'A',
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  label,
+              Container(
+                width: 1,
+                height: 32,
+                color: const Color(0xFFE5E7EB),
+                margin: const EdgeInsets.symmetric(vertical: 4),
+              ),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF97316),
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  'B',
                   style: TextStyle(
-                    color: labelColor,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w500,
-                    height: 1.3,
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-          if (showDivider) ...[
-            const SizedBox(height: 14),
-            const Divider(height: 1, color: Color(0xFFF0F0F0), indent: 42),
-          ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: onPickupTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            pickupLabel,
+                            style: const TextStyle(
+                              color: Color(0xFF1A1A1A),
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 20),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: const [
+                          Text(
+                            '6 min away',
+                            style: TextStyle(
+                              color: Color(0xFF6B7280),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF6B7280), size: 14),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Container(
+                    height: 1,
+                    color: const Color(0xFFF3F4F6),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: onDropoffTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        dropoffLabel,
+                        style: TextStyle(
+                          color: dropoffLabel == context.tr(AppStrings.dropOffAddress)
+                              ? const Color(0xFF6B7280)
+                              : const Color(0xFF1A1A1A),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
-  }
-}
-
-class _VehicleSlider extends StatelessWidget {
-  const _VehicleSlider({
-    required this.selectedService,
-    required this.selectedTaxiTier,
-    required this.selectedDeliveryTier,
-    required this.selectedCargoTier,
-    required this.onSelected,
-    required this.onTaxiTierSelected,
-    required this.onDeliveryTierSelected,
-    required this.onCargoTierSelected,
-  });
-
-  final _ServiceType selectedService;
-  final _TaxiTier selectedTaxiTier;
-  final _DeliveryTier selectedDeliveryTier;
-  final _CargoTier selectedCargoTier;
-  final ValueChanged<_ServiceType> onSelected;
-  final ValueChanged<_TaxiTier> onTaxiTierSelected;
-  final ValueChanged<_DeliveryTier> onDeliveryTierSelected;
-  final ValueChanged<_CargoTier> onCargoTierSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final children = selectedService == _ServiceType.taxi
-        ? [
-            _VehicleCard(
-              selected: selectedTaxiTier == _TaxiTier.standard,
-              title: context.tr(AppStrings.standardTaxi),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '28 ₺'},
-              ),
-              leading: const _TaxiImageThumbnail(
-                assetPath: 'assets/images/IMG_0185.jpg',
-              ),
-              onTap: () => onTaxiTierSelected(_TaxiTier.standard),
-            ),
-            const SizedBox(width: 14),
-            _VehicleCard(
-              selected: selectedTaxiTier == _TaxiTier.comfort,
-              title: context.tr(AppStrings.comfortTaxi),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '40 ₺'},
-              ),
-              leading: const _TaxiImageThumbnail(
-                assetPath: 'assets/images/car_plus.jpg',
-              ),
-              onTap: () => onTaxiTierSelected(_TaxiTier.comfort),
-            ),
-            const SizedBox(width: 14),
-            _VehicleCard(
-              selected: selectedTaxiTier == _TaxiTier.vip,
-              title: context.tr(AppStrings.vipTaxi),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '65 ₺'},
-              ),
-              leading: const _TaxiImageThumbnail(
-                assetPath: 'assets/images/car_business.jpg',
-              ),
-              onTap: () => onTaxiTierSelected(_TaxiTier.vip),
-            ),
-          ]
-        : selectedService == _ServiceType.delivery
-        ? [
-            _VehicleCard(
-              selected: selectedDeliveryTier == _DeliveryTier.bicycleCourier,
-              title: context.tr(AppStrings.bicycleCourier),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '12 ₺'},
-              ),
-              leading: const _ServiceImageThumbnail(
-                assetPath: 'assets/images/bicycle.jpg',
-                imageScale: 1.8,
-              ),
-              onTap: () => onDeliveryTierSelected(_DeliveryTier.bicycleCourier),
-            ),
-            const SizedBox(width: 14),
-            _VehicleCard(
-              selected: selectedDeliveryTier == _DeliveryTier.motorcycleCourier,
-              title: context.tr(AppStrings.motorcycleCourier),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '20 ₺'},
-              ),
-              leading: const _ServiceImageThumbnail(
-                assetPath: 'assets/images/co-bike.jpg',
-                width: 86,
-                height: 60,
-              ),
-              onTap: () =>
-                  onDeliveryTierSelected(_DeliveryTier.motorcycleCourier),
-            ),
-          ]
-        : selectedService == _ServiceType.cargo
-        ? [
-            _VehicleCard(
-              selected: selectedCargoTier == _CargoTier.minivan,
-              title: context.tr(AppStrings.minivan),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '45 ₺'},
-              ),
-              leading: const _ServiceImageThumbnail(
-                assetPath: 'assets/images/small_truck.jpg',
-                width: 76,
-                height: 52,
-                imageScale: 1.0,
-                padding: EdgeInsets.zero,
-              ),
-              onTap: () => onCargoTierSelected(_CargoTier.minivan),
-            ),
-            const SizedBox(width: 14),
-            _VehicleCard(
-              selected: selectedCargoTier == _CargoTier.panelVan,
-              title: context.tr(AppStrings.panelVan),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '60 ₺'},
-              ),
-              leading: const _ServiceImageThumbnail(
-                assetPath: 'assets/images/mid-truck.jpg',
-                width: 76,
-                height: 52,
-                imageScale: 1.0,
-                padding: EdgeInsets.zero,
-              ),
-              onTap: () => onCargoTierSelected(_CargoTier.panelVan),
-            ),
-            const SizedBox(width: 14),
-            _VehicleCard(
-              selected: selectedCargoTier == _CargoTier.lightTruck,
-              title: context.tr(AppStrings.lightTruck),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '85 ₺'},
-              ),
-              leading: const _ServiceImageThumbnail(
-                assetPath: 'assets/images/large_truck.jpg',
-                width: 76,
-                height: 52,
-                imageScale: 1.0,
-                padding: EdgeInsets.zero,
-              ),
-              onTap: () => onCargoTierSelected(_CargoTier.lightTruck),
-            ),
-          ]
-        : [
-            _VehicleCard(
-              selected: false,
-              title: context.tr(AppStrings.delivery),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '20 ₺'},
-              ),
-              leading: const _ServiceIconThumbnail(
-                icon: Icons.two_wheeler_rounded,
-                color: Color(0xFFFB923C),
-              ),
-              onTap: () => onSelected(_ServiceType.delivery),
-            ),
-            const SizedBox(width: 14),
-            _VehicleCard(
-              selected: false,
-              title: context.tr(AppStrings.cargo),
-              subtitle: context.tr(
-                AppStrings.fromPrice,
-                params: {'price': '45 ₺'},
-              ),
-              leading: const _ServiceImageThumbnail(
-                assetPath: 'assets/images/truck.png',
-              ),
-              onTap: () => onSelected(_ServiceType.cargo),
-            ),
-          ];
-
-    return SizedBox(
-      height: 90,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        children: children,
-      ),
-    );
-  }
-}
-
-class _ServiceChipRow extends StatelessWidget {
-  const _ServiceChipRow({
-    required this.selectedService,
-    required this.onSelected,
-  });
-
-  final _ServiceType selectedService;
-  final ValueChanged<_ServiceType> onSelected;
-
-  static const _tabs = [_ServiceType.taxi, _ServiceType.delivery, _ServiceType.cargo];
-
-  int get _selectedIndex => _tabs.indexOf(selectedService);
-
-  IconData _iconForService(_ServiceType type) {
-    switch (type) {
-      case _ServiceType.taxi:
-        return Icons.local_taxi_rounded;
-      case _ServiceType.delivery:
-        return Icons.delivery_dining_rounded;
-      case _ServiceType.cargo:
-        return Icons.local_shipping_rounded;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    const primaryOrange = Color(0xFFF97316);
-    final bgColor = isDark ? const Color(0xFF1A1D23) : const Color(0xFFF1F5F9);
-    final inactiveText = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: screenWidth * 0.65),
-        child: Container(
-          height: 36,
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final tabWidth = (constraints.maxWidth - 4) / 3;
-              return Stack(
-                children: [
-                  // Animated sliding indicator
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    left: 2 + (_selectedIndex * tabWidth),
-                    top: 0,
-                    bottom: 0,
-                    width: tabWidth - 2,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: primaryOrange,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                  // Tab buttons
-                  Row(
-                    children: List.generate(3, (index) {
-                      final type = _tabs[index];
-                      final isSelected = index == _selectedIndex;
-
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => onSelected(type),
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            height: double.infinity,
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  _iconForService(type),
-                                  size: 14,
-                                  color: isSelected ? Colors.white : inactiveText,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _labelForService(context, type),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: isSelected ? Colors.white : inactiveText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _labelForService(BuildContext context, _ServiceType type) {
-    switch (type) {
-      case _ServiceType.taxi:
-        return context.tr(AppStrings.taxi);
-      case _ServiceType.delivery:
-        return context.tr(AppStrings.delivery);
-      case _ServiceType.cargo:
-        return context.tr(AppStrings.cargo);
-    }
   }
 }
 
@@ -985,15 +1072,25 @@ class _VehicleCard extends StatelessWidget {
   const _VehicleCard({
     required this.selected,
     required this.title,
+    required this.price,
+    required this.assetPath,
+    required this.timeAway,
     required this.subtitle,
-    this.leading,
+    required this.iconData,
+    required this.iconColor,
+    this.driverName,
     this.onTap,
   });
 
   final bool selected;
   final String title;
+  final String price;
+  final String assetPath;
+  final String timeAway;
   final String subtitle;
-  final Widget? leading;
+  final IconData iconData;
+  final Color iconColor;
+  final String? driverName;
   final VoidCallback? onTap;
 
   @override
@@ -1001,58 +1098,114 @@ class _VehicleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 200,
-        height: 86,
-        padding: const EdgeInsets.fromLTRB(10, 12, 16, 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? const Color(0xFFF97316) : const Color(0xFFE8E8E8),
+            color: selected ? const Color(0xFFF97316) : Colors.transparent,
             width: selected ? 2.0 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
+              blurRadius: 10,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Row(
+        child: Column(
           children: [
-            SizedBox(
-              width: 72,
-              height: 56,
-              child: leading,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(iconData, color: iconColor, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Color(0xFF1A1A1A),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  price,
+                  style: const TextStyle(
+                    color: Color(0xFF1A1A1A),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Color(0xFF1A1A1A),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      height: 1.2,
-                    ),
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  assetPath,
+                  width: 90,
+                  height: 48,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (driverName != null) ...[
+                        Row(
+                          children: [
+                            const CircleAvatar(
+                              radius: 12,
+                              backgroundImage: AssetImage('assets/images/PHOTO-2026-03-27-20-08-38.jpg'),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              driverName!,
+                              style: const TextStyle(
+                                color: Color(0xFF1A1A1A),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                      Row(
+                        children: [
+                          if (driverName != null) ...[
+                            const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 14),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(
+                            subtitle,
+                            style: const TextStyle(
+                              color: Color(0xFF6B7280),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: Color(0xFF1A1A1A),
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
+                ),
+                Text(
+                  timeAway,
+                  style: const TextStyle(
+                    color: Color(0xFF6B7280),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -1340,7 +1493,7 @@ class _PickupButton extends StatelessWidget {
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
         child: isLoading
@@ -1352,15 +1505,20 @@ class _PickupButton extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : Text(
-                hasPickup && hasDropoff
-                    ? context.tr(AppStrings.continueLabel)
-                    : context.tr(AppStrings.setPickupPoint),
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.2,
-                ),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Confirm pick-up point',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.chevron_right_rounded, size: 24),
+                ],
               ),
       ),
     );
@@ -1661,7 +1819,7 @@ class _PlacePickerSheetState extends State<_PlacePickerSheet> {
             // Set point on map option
             InkWell(
               onTap: () {
-                // Action for setting point on map
+                Navigator.of(context).pop('__map_pick__');
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

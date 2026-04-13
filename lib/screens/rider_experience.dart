@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'auth_screen.dart';
 import 'home_map_screen.dart';
-import 'order_now_splash_screen.dart';
-import 'ride_home_screen.dart';
 
 class RiderExperience extends StatefulWidget {
   const RiderExperience({super.key});
@@ -44,7 +42,7 @@ class _RiderExperienceState extends State<RiderExperience> {
   @override
   Widget build(BuildContext context) {
     if (_signedIn) {
-      return OrderNowSplashScreen(onLogout: _signOut);
+      return HomeMapScreen(onLogout: _signOut);
     }
 
     return SignedOutScreen(onSignIn: _signIn);

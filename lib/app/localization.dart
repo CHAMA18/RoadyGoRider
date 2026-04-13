@@ -13,6 +13,7 @@ class AppStrings {
   static const aboutWallet = 'aboutWallet';
   static const topUp = 'topUp';
   static const defaultTips = 'defaultTips';
+  static const transactions = 'transactions';
   static const noTip = 'noTip';
   static const promo = 'promo';
   static const yourCoupons = 'yourCoupons';
@@ -220,6 +221,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.aboutWallet: 'About wallet',
     AppStrings.topUp: 'Top up',
     AppStrings.defaultTips: 'Default tips',
+    AppStrings.transactions: 'Transactions',
     AppStrings.noTip: 'No tip',
     AppStrings.promo: 'Promo',
     AppStrings.yourCoupons: 'Your coupons',
@@ -349,6 +351,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.aboutWallet: 'Rreth portofolit',
     AppStrings.topUp: 'Mbush',
     AppStrings.defaultTips: 'Bakshishet e parazgjedhura',
+    AppStrings.transactions: 'Transaksionet',
     AppStrings.noTip: 'Pa bakshish',
     AppStrings.promo: 'Promocione',
     AppStrings.yourCoupons: 'Kuponat tuaj',
@@ -445,6 +448,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.aboutWallet: 'A propos du portefeuille',
     AppStrings.topUp: 'Recharger',
     AppStrings.defaultTips: 'Pourboires par defaut',
+    AppStrings.transactions: 'Transactions',
     AppStrings.noTip: 'Aucun pourboire',
     AppStrings.promo: 'Promos',
     AppStrings.yourCoupons: 'Vos coupons',

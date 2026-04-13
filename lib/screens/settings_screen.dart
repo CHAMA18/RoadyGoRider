@@ -71,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
                     _SettingsRow(
                       icon: const _LanguageIcon(),
                       label: context.tr(AppStrings.language),
-                      subtitle: themeScope.selectedLanguage,
+                      subtitle: LanguageScreen.languageMap[themeScope.selectedLanguage] ?? themeScope.selectedLanguage,
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const LanguageScreen()),
                       ),

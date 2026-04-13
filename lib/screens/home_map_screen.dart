@@ -34,7 +34,6 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isPromoDismissed = true; // start as true until loaded
   String? _recentLocation;
-  bool _showCategories = false;
 
   @override
   void initState() {
@@ -95,133 +94,6 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
-      ),
-    );
-  }
-
-  Widget _buildOrderNowPanel(ThemeData theme, ColorScheme colorScheme) {
-    return Column(
-      key: const ValueKey('orderNow'),
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _showCategories = true;
-            });
-          },
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/images/IMG_0185.jpg',
-                  width: 60,
-                  height: 40,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  'Order now',
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.arrow_forward,
-                  color: colorScheme.onSurface,
-                  size: 24,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              _buildAddButton(theme),
-              const SizedBox(width: 12),
-              _buildPlaceChip(theme, 'Salama-park'),
-              const SizedBox(width: 12),
-              _buildPlaceChip(theme, 'Lusaka'),
-              const SizedBox(width: 12),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
-    );
-  }
-
-  Widget _buildAddButton(ThemeData theme) {
-    final isDark = theme.brightness == Brightness.dark;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _showCategories = true;
-        });
-      },
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(Icons.add, color: theme.colorScheme.onSurface),
-      ),
-    );
-  }
-
-  Widget _buildPlaceChip(ThemeData theme, String label) {
-    final isDark = theme.brightness == Brightness.dark;
-    return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      alignment: Alignment.center,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.history, size: 18, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: theme.colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -303,48 +175,32 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(0, 0.2),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: child,
-                                ),
+                          HomeCategories(
+                            key: const ValueKey('categories'),
+                            onRideTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const RideCheckoutScreen(),
+                              ),
+                            ),
+                            onFoodTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const FoodScreen(),
+                              ),
+                            ),
+                            onAddWork: () async {
+                              final result = await showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => const LocationPickerSheet(),
                               );
+                              if (result != null && result is String && mounted) {
+                                setState(() {
+                                  _recentLocation = result;
+                                });
+                              }
                             },
-                            child: _showCategories
-                                ? HomeCategories(
-                                    key: const ValueKey('categories'),
-                                    onRideTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const RideCheckoutScreen(),
-                                      ),
-                                    ),
-                                    onFoodTap: () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => const FoodScreen(),
-                                      ),
-                                    ),
-                                    onAddWork: () async {
-                                      final result = await Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => const LocationPickerSheet(),
-                                        ),
-                                      );
-                                      if (result != null && result is String && mounted) {
-                                        setState(() {
-                                          _recentLocation = result;
-                                        });
-                                      }
-                                    },
-                                    recentLocation: _recentLocation,
-                                  )
-                                : _buildOrderNowPanel(theme, colorScheme),
+                            recentLocation: _recentLocation,
                           ),
                           const SizedBox(height: 12),
                         ],

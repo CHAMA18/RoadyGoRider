@@ -4,6 +4,7 @@ import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 import 'about_wallet_screen.dart';
+import 'top_up_screen.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -157,75 +158,6 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void _showDepositBottomSheet() {
-    final TextEditingController controller = TextEditingController();
-    
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Top Up Amount',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: controller,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  hintText: 'Enter deposit amount',
-                  prefixText: '\$ ',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  if (controller.text.isNotEmpty) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Successfully deposited \$${controller.text}')),
-                    );
-                  }
-                },
-                child: const Text('Deposit', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -250,7 +182,13 @@ class _WalletScreenState extends State<WalletScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 6),
               child: GestureDetector(
-                onTap: _showDepositBottomSheet,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const TopUpScreen(),
+                    ),
+                  );
+                },
                 child: Container(
                   width: double.infinity,
                   height: 180,
@@ -258,20 +196,41 @@ class _WalletScreenState extends State<WalletScreen> {
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Spacer(),
-                      const Icon(Icons.add, color: Colors.white, size: 30),
-                      const SizedBox(height: 10),
                       Text(
-                        context.tr(AppStrings.topUp),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: AppTypography.size,
-                          fontWeight: FontWeight.w700,
+                        'Available Balance',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '\$0.00',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          const Icon(Icons.add, color: Colors.white, size: 24),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.tr(AppStrings.topUp),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -298,6 +257,22 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
               onTap: _showTipBottomSheet,
+            ),
+            Divider(height: 1, color: dividerColor),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+              leading: const Icon(Icons.receipt_long_outlined, size: 28),
+              title: Text(
+                context.tr(AppStrings.transactions),
+                style: const TextStyle(
+                  fontSize: AppTypography.size,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              trailing: const Icon(Icons.chevron_right, color: AppColors.slate),
+              onTap: () {
+                // TODO: Implement transactions view
+              },
             ),
             Divider(height: 1, color: dividerColor),
             const Spacer(),
