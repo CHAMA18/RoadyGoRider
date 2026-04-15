@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/cart_service.dart';
 import 'cart_screen.dart';
 
-class RestaurantDetailScreen extends StatelessWidget {
+class RestaurantDetailScreen extends StatefulWidget {
   final String title;
   final String rating;
   final String timeText;
@@ -15,6 +15,13 @@ class RestaurantDetailScreen extends StatelessWidget {
     required this.timeText,
     required this.imageUrl,
   });
+
+  @override
+  State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
+}
+
+class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
+  bool _isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +114,16 @@ class RestaurantDetailScreen extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Colors.black.withValues(alpha: 0.4),
                   child: IconButton(
-                    icon: const Icon(Icons.favorite_border, color: Colors.white, size: 20),
-                    onPressed: () {},
+                    icon: Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border, 
+                      color: _isFavorite ? Colors.red : Colors.white, 
+                      size: 20
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isFavorite = !_isFavorite;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -125,7 +140,7 @@ class RestaurantDetailScreen extends StatelessWidget {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                imageUrl,
+                widget.imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey.shade300,
@@ -146,7 +161,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                         radius: 24,
                         backgroundColor: Colors.grey.shade200,
                         child: Text(
-                          title.substring(0, 2).toUpperCase(),
+                          widget.title.substring(0, 2).toUpperCase(),
                           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ),
@@ -157,7 +172,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                title,
+                                widget.title,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -169,7 +184,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                             Row(
                               children: [
                                 Text(
-                                  rating,
+                                  widget.rating,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -190,7 +205,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                       const Icon(Icons.access_time, size: 16, color: Colors.black54),
                       const SizedBox(width: 4),
                       Text(
-                        '$timeText • ',
+                        '${widget.timeText} • ',
                         style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w500),
                       ),
                       const Icon(Icons.info_outline, size: 16, color: Colors.black54),

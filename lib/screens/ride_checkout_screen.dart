@@ -67,42 +67,36 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final docRef = await FirebaseFirestore.instance.collection('rides').add({
-          'userId': user.uid,
-          'scheduledDate': _scheduledDate?.toIso8601String(),
-          'pickup': {
-            'title': _pickup!.title,
-            'subtitle': _pickup!.subtitle,
-            'latitude': _pickup!.latLng.latitude,
-            'longitude': _pickup!.latLng.longitude,
-          },
-          'dropoff': {
-            'title': _dropoff!.title,
-            'subtitle': _dropoff!.subtitle,
-            'latitude': _dropoff!.latLng.latitude,
-            'longitude': _dropoff!.latLng.longitude,
-          },
-          'serviceType': _selectedService.name,
-          'taxiTier': _selectedTaxiTier.name,
-          'deliveryTier': _selectedDeliveryTier.name,
-          'cargoTier': _selectedCargoTier.name,
-          'status': 'pending',
-          'createdAt': FieldValue.serverTimestamp(),
+      final userId = user?.uid ?? 'guest_user';
+
+      final docRef = await FirebaseFirestore.instance.collection('rides').add({
+        'userId': userId,
+        'scheduledDate': _scheduledDate?.toIso8601String(),
+        'pickup': {
+          'title': _pickup!.title,
+          'subtitle': _pickup!.subtitle,
+          'latitude': _pickup!.latLng.latitude,
+          'longitude': _pickup!.latLng.longitude,
+        },
+        'dropoff': {
+          'title': _dropoff!.title,
+          'subtitle': _dropoff!.subtitle,
+          'latitude': _dropoff!.latLng.latitude,
+          'longitude': _dropoff!.latLng.longitude,
+        },
+        'serviceType': _selectedService.name,
+        'taxiTier': _selectedTaxiTier.name,
+        'deliveryTier': _selectedDeliveryTier.name,
+        'cargoTier': _selectedCargoTier.name,
+        'status': 'pending',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      
+      if (mounted) {
+        setState(() {
+          _currentRideId = docRef.id;
+          _isSearchingForDriver = true;
         });
-        
-        if (mounted) {
-          setState(() {
-            _currentRideId = docRef.id;
-            _isSearchingForDriver = true;
-          });
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please log in to request a driver.')),
-          );
-        }
       }
     } catch (e) {
       if (mounted) {
@@ -533,13 +527,16 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                                             ]
                                           : null,
                                     ),
-                                    child: Text(
-                                      type.name[0].toUpperCase() + type.name.substring(1),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                        color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        type.name[0].toUpperCase() + type.name.substring(1),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                          color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -559,32 +556,48 @@ class _RideCheckoutScreenState extends State<RideCheckoutScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        child: _PickupButton(
-                          hasPickup: _pickup != null,
-                          hasDropoff: _dropoff != null,
-                          isLoading: _isRequesting,
-                          onTap: () async {
-                            if (_pickup == null) {
-                              _pickPlace(pickup: true);
-                              return;
-                            }
-                            if (_dropoff == null) {
-                              _pickPlace(pickup: false);
-                              return;
-                            }
-                            final confirmed = await Navigator.of(context).push<bool>(
-                              MaterialPageRoute(
-                                builder: (_) => ConfirmOrderScreen(
-                                  targetLocation: _pickup!.latLng,
-                                  cityName: _pickup!.title,
-                                  price: _getSelectedPrice(),
-                                ),
+                        child: Row(
+                          children: [
+                            _ScheduleButton(
+                              onTap: _pickScheduledDate,
+                              scheduledDate: _scheduledDate,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _PickupButton(
+                                hasPickup: _pickup != null,
+                                hasDropoff: _dropoff != null,
+                                isLoading: _isRequesting,
+                                onTap: () async {
+                                  if (_pickup == null) {
+                                    _pickPlace(pickup: true);
+                                    return;
+                                  }
+                                  if (_dropoff == null) {
+                                    _pickPlace(pickup: false);
+                                    return;
+                                  }
+                                  final confirmed = await Navigator.of(context).push<bool>(
+                                    MaterialPageRoute(
+                                      builder: (_) => ConfirmOrderScreen(
+                                        pickupLocation: _pickup!.latLng,
+                                        dropoffLocation: _dropoff!.latLng,
+                                        cityName: _pickup!.title,
+                                        price: _getSelectedPrice(),
+                                      ),
+                                    ),
+                                  );
+                                  if (confirmed == true && mounted) {
+                                    _requestDriver();
+                                  }
+                                },
                               ),
-                            );
-                            if (confirmed == true && mounted) {
-                              _requestDriver();
-                            }
-                          },
+                            ),
+                            const SizedBox(width: 8),
+                            _CashButton(
+                              onTap: () {},
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -930,7 +943,7 @@ class _AddressInputs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -947,7 +960,7 @@ class _AddressInputs extends StatelessWidget {
         children: [
           Column(
             children: [
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Container(
                 width: 24,
                 height: 24,
@@ -967,7 +980,7 @@ class _AddressInputs extends StatelessWidget {
               ),
               Container(
                 width: 1,
-                height: 32,
+                height: 16,
                 color: const Color(0xFFE5E7EB),
                 margin: const EdgeInsets.symmetric(vertical: 4),
               ),
@@ -1034,7 +1047,7 @@ class _AddressInputs extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Container(
                     height: 1,
                     color: const Color(0xFFF3F4F6),
@@ -1467,7 +1480,7 @@ class _PreferenceButton extends StatelessWidget {
   }
 }
 
-class _PickupButton extends StatelessWidget {
+class _PickupButton extends StatefulWidget {
   const _PickupButton({
     required this.onTap,
     required this.hasPickup,
@@ -1481,45 +1494,223 @@ class _PickupButton extends StatelessWidget {
   final bool isLoading;
 
   @override
+  State<_PickupButton> createState() => _PickupButtonState();
+}
+
+class _PickupButtonState extends State<_PickupButton> with TickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+    
+    _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF97316),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: GestureDetector(
+        onTapDown: (_) {
+          if (!widget.isLoading) _scaleController.forward();
+        },
+        onTapUp: (_) {
+          if (!widget.isLoading) {
+            _scaleController.reverse();
+            widget.onTap();
+          }
+        },
+        onTapCancel: () {
+          if (!widget.isLoading) _scaleController.reverse();
+        },
+        child: AnimatedBuilder(
+          animation: _pulseAnimation,
+          builder: (context, child) {
+            return Container(
+              height: 48,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFFFF7A00),
+                    Color(0xFFFF3D00),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Confirm pick-up point',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.2,
-                    ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFF3D00).withValues(alpha: 0.3 * _pulseAnimation.value),
+                    blurRadius: 16 * _pulseAnimation.value,
+                    spreadRadius: 2 * _pulseAnimation.value,
+                    offset: const Offset(0, 4),
                   ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.chevron_right_rounded, size: 24),
+                  BoxShadow(
+                    color: const Color(0xFFFF7A00).withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
+              child: Material(
+                color: Colors.transparent,
+                child: Center(
+                  child: widget.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Confirm pick-up point',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ScheduleButton extends StatelessWidget {
+  const _ScheduleButton({required this.onTap, this.scheduledDate});
+  final VoidCallback onTap;
+  final DateTime? scheduledDate;
+
+  @override
+  Widget build(BuildContext context) {
+    String label = 'Schedule';
+    if (scheduledDate != null) {
+      final now = DateTime.now();
+      if (scheduledDate!.year == now.year &&
+          scheduledDate!.month == now.month &&
+          scheduledDate!.day == now.day) {
+        label = DateFormat.jm().format(scheduledDate!);
+      } else {
+        label = DateFormat('MMM d, h:mm a').format(scheduledDate!);
+      }
+    }
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF1A1A1A),
+        side: const BorderSide(color: Color(0xFFE5E7EB)),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        minimumSize: const Size(0, 48),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.access_time_rounded, size: 20),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CashButton extends StatelessWidget {
+  const _CashButton({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF1A1A1A),
+        side: const BorderSide(color: Color(0xFFE5E7EB)),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        minimumSize: const Size(0, 48),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.payments_outlined, size: 20, color: Color(0xFF10B981)),
+          const SizedBox(width: 6),
+          const Text(
+            'Cash',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

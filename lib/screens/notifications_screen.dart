@@ -101,54 +101,94 @@ class NotificationsScreen extends StatelessWidget {
                         }
                       }
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 18,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  dateStr,
-                                  style: const TextStyle(
-                                    color: AppColors.slate,
-                                    fontSize: AppTypography.size,
-                                    fontWeight: FontWeight.w600,
+                      return InkWell(
+                        onTap: () async {
+                          final message = data['message'] ?? data['body'] ?? data['description'] ?? '';
+                          await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                content: SingleChildScrollView(
+                                  child: Text(
+                                    message.toString().isNotEmpty ? message.toString() : 'No additional content.',
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
-                                const Spacer(),
-                                if (isNew)
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.circle,
-                                        color: Colors.red,
-                                        size: 10,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        context.tr(AppStrings.newBadge),
-                                        style: const TextStyle(
-                                          color: AppColors.slate,
-                                          fontSize: AppTypography.size,
-                                        ),
-                                      ),
-                                    ],
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: Text(
+                                      context.tr(AppStrings.done) ?? 'Done',
+                                      style: TextStyle(color: theme.primaryColor),
+                                    ),
                                   ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontSize: AppTypography.size,
-                                fontWeight: FontWeight.w700,
+                                ],
+                              );
+                            },
+                          );
+                          // After closing the dialog, remove the notification
+                          try {
+                            await FirebaseFirestore.instance
+                                .collection('notifications')
+                                .doc(docs[index].id)
+                                .delete();
+                          } catch (e) {
+                            debugPrint('Error deleting notification: $e');
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 18,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    dateStr,
+                                    style: const TextStyle(
+                                      color: AppColors.slate,
+                                      fontSize: AppTypography.size,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  if (isNew)
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.circle,
+                                          color: Colors.red,
+                                          size: 10,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          context.tr(AppStrings.newBadge),
+                                          style: const TextStyle(
+                                            color: AppColors.slate,
+                                            fontSize: AppTypography.size,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: AppTypography.size,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

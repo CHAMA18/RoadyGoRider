@@ -43,9 +43,6 @@ class AppStrings {
   static const noLanguagesMatch = 'noLanguagesMatch';
   static const callUs = 'callUs';
   static const emailUs = 'emailUs';
-  static const getLegalInformation = 'getLegalInformation';
-  static const facebook = 'facebook';
-  static const instagram = 'instagram';
   static const addAPhoto = 'addAPhoto';
   static const save = 'save';
   static const name = 'name';
@@ -123,6 +120,9 @@ class AppStrings {
   static const confirmPasswordHint = 'confirmPasswordHint';
   static const passwordsDoNotMatch = 'passwordsDoNotMatch';
   static const scheduleAppointment = 'scheduleAppointment';
+  static const enterPromoCode = 'enterPromoCode';
+  static const noCoupons = 'noCoupons';
+  static const done = 'done';
 }
 
 class AppLocalizations {
@@ -253,9 +253,6 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.noLanguagesMatch: 'No languages match your search.',
     AppStrings.callUs: 'Call us',
     AppStrings.emailUs: 'Email us',
-    AppStrings.getLegalInformation: 'Get legal information',
-    AppStrings.facebook: 'Facebook',
-    AppStrings.instagram: 'Instagram',
     AppStrings.addAPhoto: 'Add a photo',
     AppStrings.save: 'Save',
     AppStrings.name: 'Name',
@@ -340,12 +337,18 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.confirmPassword: 'Confirm password',
     AppStrings.confirmPasswordHint: 'Re-enter your password',
     AppStrings.passwordsDoNotMatch: 'Passwords do not match.',
+    AppStrings.enterPromoCode: 'Enter promo code',
+    AppStrings.noCoupons: 'No coupons',
+    AppStrings.done: 'Done',
   },
   'Albanian': {
     AppStrings.settings: 'Cilesimet',
     AppStrings.appAppearance: 'Pamja e aplikacionit',
     AppStrings.language: 'Gjuha',
     AppStrings.getInTouch: 'Na kontaktoni',
+    AppStrings.privacyPolicy: 'Politika e privatesise',
+    AppStrings.termsAndConditions: 'Kushtet e sherbimit',
+    AppStrings.aboutUs: 'Rreth nesh',
     AppStrings.notifications: 'Njoftime',
     AppStrings.wallet: 'Portofoli',
     AppStrings.aboutWallet: 'Rreth portofolit',
@@ -364,7 +367,6 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.enterPhoneNumberToStart:
         'Shkruani numrin e telefonit per te filluar',
     AppStrings.iAgreeTo: 'Jam dakord me ',
-    AppStrings.termsAndConditions: 'Kushtet dhe kushtet',
     AppStrings.requestCode: 'Kerko kodin',
     AppStrings.phoneNumber: 'Numri i telefonit',
     AppStrings.codeSentTo: 'Kodi u dergua me SMS, WhatsApp ose Viber ne',
@@ -382,9 +384,6 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.noLanguagesMatch: 'Asnje gjuhe nuk perputhet me kerkimin tuaj.',
     AppStrings.callUs: 'Na telefononi',
     AppStrings.emailUs: 'Na dergoni email',
-    AppStrings.getLegalInformation: 'Merrni informacion ligjor',
-    AppStrings.facebook: 'Facebook',
-    AppStrings.instagram: 'Instagram',
     AppStrings.addAPhoto: 'Shto nje foto',
     AppStrings.save: 'Ruaj',
     AppStrings.name: 'Emri',
@@ -443,6 +442,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.appAppearance: 'Apparence de l\'application',
     AppStrings.language: 'Langue',
     AppStrings.getInTouch: 'Nous contacter',
+    AppStrings.privacyPolicy: 'Politique de confidentialite',
+    AppStrings.termsAndConditions: 'Termes et conditions',
+    AppStrings.aboutUs: 'A propos de nous',
     AppStrings.notifications: 'Notifications',
     AppStrings.wallet: 'Portefeuille',
     AppStrings.aboutWallet: 'A propos du portefeuille',
@@ -495,6 +497,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.appAppearance: 'App-Darstellung',
     AppStrings.language: 'Sprache',
     AppStrings.getInTouch: 'Kontakt',
+    AppStrings.privacyPolicy: 'Datenschutzrichtlinie',
+    AppStrings.termsAndConditions: 'Allgemeine Geschaftsbedingungen',
+    AppStrings.aboutUs: 'Uber uns',
     AppStrings.notifications: 'Benachrichtigungen',
     AppStrings.wallet: 'Geldborse',
     AppStrings.topUp: 'Aufladen',
@@ -535,6 +540,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.appAppearance: 'Apariencia de la aplicacion',
     AppStrings.language: 'Idioma',
     AppStrings.getInTouch: 'Contactanos',
+    AppStrings.privacyPolicy: 'Politica de privacidad',
+    AppStrings.termsAndConditions: 'Terminos y condiciones',
+    AppStrings.aboutUs: 'Sobre nosotros',
     AppStrings.notifications: 'Notificaciones',
     AppStrings.wallet: 'Billetera',
     AppStrings.topUp: 'Recargar',
@@ -572,6 +580,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.appAppearance: 'Aspetto dell\'app',
     AppStrings.language: 'Lingua',
     AppStrings.getInTouch: 'Contattaci',
+    AppStrings.privacyPolicy: 'Informativa sulla privacy',
+    AppStrings.termsAndConditions: 'Termini e condizioni',
+    AppStrings.aboutUs: 'Chi siamo',
     AppStrings.notifications: 'Notifiche',
     AppStrings.wallet: 'Portafoglio',
     AppStrings.topUp: 'Ricarica',
@@ -607,6 +618,9 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.appAppearance: 'Aparencia da aplicacao',
     AppStrings.language: 'Idioma',
     AppStrings.getInTouch: 'Entre em contacto',
+    AppStrings.privacyPolicy: 'Politica de privacidade',
+    AppStrings.termsAndConditions: 'Termos e condicoes',
+    AppStrings.aboutUs: 'Sobre nos',
     AppStrings.notifications: 'Notificacoes',
     AppStrings.wallet: 'Carteira',
     AppStrings.topUp: 'Carregar',
@@ -641,6 +655,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.settings: 'Instellingen',
     AppStrings.appAppearance: 'App-weergave',
     AppStrings.language: 'Taal',
+    AppStrings.getInTouch: 'Neem contact op',
+    AppStrings.privacyPolicy: 'Privacybeleid',
+    AppStrings.termsAndConditions: 'Algemene voorwaarden',
+    AppStrings.aboutUs: 'Over ons',
     AppStrings.notifications: 'Meldingen',
     AppStrings.wallet: 'Portemonnee',
     AppStrings.requestCode: 'Code aanvragen',
@@ -668,6 +686,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.settings: 'Ustawienia',
     AppStrings.appAppearance: 'Wyglad aplikacji',
     AppStrings.language: 'Jezyk',
+    AppStrings.getInTouch: 'Skontaktuj sie z nami',
+    AppStrings.privacyPolicy: 'Polityka prywatnosci',
+    AppStrings.termsAndConditions: 'Regulamin',
+    AppStrings.aboutUs: 'O nas',
     AppStrings.notifications: 'Powiadomienia',
     AppStrings.wallet: 'Portfel',
     AppStrings.requestCode: 'Popros o kod',
@@ -694,6 +716,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.settings: 'Rythmiseis',
     AppStrings.appAppearance: 'Emfanisi efarmogis',
     AppStrings.language: 'Glossa',
+    AppStrings.getInTouch: 'Epikoinoniste mazi mas',
+    AppStrings.privacyPolicy: 'Politiki aporritou',
+    AppStrings.termsAndConditions: 'Oroi kai proupotheseis',
+    AppStrings.aboutUs: 'Schetika me emas',
     AppStrings.notifications: 'Eidopoiiseis',
     AppStrings.wallet: 'Portofoli',
     AppStrings.requestCode: 'Zitise kodiko',
@@ -720,6 +746,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.settings: 'Setari',
     AppStrings.appAppearance: 'Aspectul aplicatiei',
     AppStrings.language: 'Limba',
+    AppStrings.getInTouch: 'Contacteaza-ne',
+    AppStrings.privacyPolicy: 'Politica de confidentialitate',
+    AppStrings.termsAndConditions: 'Termeni si conditii',
+    AppStrings.aboutUs: 'Despre noi',
     AppStrings.notifications: 'Notificari',
     AppStrings.wallet: 'Portofel',
     AppStrings.requestCode: 'Solicita codul',
@@ -746,6 +776,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.settings: 'Ayarlar',
     AppStrings.appAppearance: 'Uygulama gorunumu',
     AppStrings.language: 'Dil',
+    AppStrings.getInTouch: 'Bize ulasin',
+    AppStrings.privacyPolicy: 'Gizlilik politikasi',
+    AppStrings.termsAndConditions: 'Sartlar ve kosullar',
+    AppStrings.aboutUs: 'Hakkimizda',
     AppStrings.notifications: 'Bildirimler',
     AppStrings.wallet: 'Cuzdan',
     AppStrings.requestCode: 'Kod iste',
@@ -773,6 +807,10 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.settings: 'Nastroiki',
     AppStrings.appAppearance: 'Vneshniy vid prilozheniya',
     AppStrings.language: 'Yazyk',
+    AppStrings.getInTouch: 'Svyazatsya s nami',
+    AppStrings.privacyPolicy: 'Politika konfidentsialnosti',
+    AppStrings.termsAndConditions: 'Usloviya ispolzovaniya',
+    AppStrings.aboutUs: 'O nas',
     AppStrings.notifications: 'Uvedomleniya',
     AppStrings.wallet: 'Koshelek',
     AppStrings.requestCode: 'Zaprosit kod',

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../app/app.dart';
 import 'store_listing_screen.dart';
 import 'restaurant_detail_screen.dart';
 import 'saved_places_screen.dart';
+import 'language_screen.dart';
 
 class FoodScreen extends StatefulWidget {
   const FoodScreen({super.key});
@@ -13,6 +15,33 @@ class FoodScreen extends StatefulWidget {
 
 class _FoodScreenState extends State<FoodScreen> {
   int _currentIndex = 0;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  final List<Map<String, String>> _restaurants = [
+    {
+      'title': 'PIZZA INN NOVARE MALL',
+      'rating': '5',
+      'deliveryFee': 'K 39',
+      'timeText': '2 min.',
+      'imageUrl': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop',
+      'logoText': 'PI',
+    },
+    {
+      'title': 'PIZZA INN LEVY MALL',
+      'rating': '4.8',
+      'deliveryFee': 'K 45',
+      'timeText': '5 min.',
+      'imageUrl': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop',
+      'logoText': 'PI',
+    },
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +168,7 @@ class _FoodScreenState extends State<FoodScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
@@ -148,15 +177,28 @@ class _FoodScreenState extends State<FoodScreen> {
                   children: [
                     Icon(Icons.search, color: Colors.grey.shade600, size: 20),
                     const SizedBox(width: 8),
-                    Text(
-                      'Search restaurants and stores',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value.toLowerCase();
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search restaurants and stores',
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Icon(Icons.tune, color: Colors.black87, size: 20),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.tune, color: Colors.black87, size: 20),
                   ],
                 ),
               ),
@@ -187,49 +229,66 @@ class _FoodScreenState extends State<FoodScreen> {
                   const SizedBox(height: 16),
                   
                   // List Items
-                  _buildRestaurantItem(
-                    title: 'PIZZA INN NOVARE MALL',
-                    rating: '5',
-                    deliveryFee: 'K 39',
-                    timeText: '2 min.',
-                    imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=600&auto=format&fit=crop', 
-                    logoText: 'PI', 
-                  ),
-                  const SizedBox(height: 24),
-                  _buildRestaurantItem(
-                    title: 'PIZZA INN LEVY MALL',
-                    rating: '4.8',
-                    deliveryFee: 'K 45',
-                    timeText: '5 min.',
-                    imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop', 
-                    logoText: 'PI', 
-                  ),
-                  const SizedBox(height: 24),
+                  ..._restaurants.where((restaurant) =>
+                    restaurant['title']!.toLowerCase().contains(_searchQuery)
+                  ).map((restaurant) => Column(
+                    children: [
+                      RestaurantItemWidget(
+                        title: restaurant['title']!,
+                        rating: restaurant['rating']!,
+                        deliveryFee: restaurant['deliveryFee']!,
+                        timeText: restaurant['timeText']!,
+                        imageUrl: restaurant['imageUrl']!,
+                        logoText: restaurant['logoText']!,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  )),
                 ],
               ),
             ),
           ],
         );
   }
+}
 
-  Widget _buildRestaurantItem({
-    required String title,
-    required String rating,
-    required String deliveryFee,
-    required String timeText,
-    required String imageUrl,
-    required String logoText,
-  }) {
+class RestaurantItemWidget extends StatefulWidget {
+  final String title;
+  final String rating;
+  final String deliveryFee;
+  final String timeText;
+  final String imageUrl;
+  final String logoText;
+
+  const RestaurantItemWidget({
+    Key? key,
+    required this.title,
+    required this.rating,
+    required this.deliveryFee,
+    required this.timeText,
+    required this.imageUrl,
+    required this.logoText,
+  }) : super(key: key);
+
+  @override
+  State<RestaurantItemWidget> createState() => _RestaurantItemWidgetState();
+}
+
+class _RestaurantItemWidgetState extends State<RestaurantItemWidget> {
+  bool _isFavorite = false;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => RestaurantDetailScreen(
-              title: title,
-              rating: rating,
-              timeText: timeText,
-              imageUrl: imageUrl,
+              title: widget.title,
+              rating: widget.rating,
+              timeText: widget.timeText,
+              imageUrl: widget.imageUrl,
             ),
           ),
         );
@@ -244,7 +303,7 @@ class _FoodScreenState extends State<FoodScreen> {
               child: Stack(
                 children: [
                   Image.network(
-                    imageUrl,
+                    widget.imageUrl,
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -332,16 +391,23 @@ class _FoodScreenState extends State<FoodScreen> {
             Positioned(
               top: 12,
               right: 12,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.favorite_border,
-                  color: Colors.white,
-                  size: 20,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isFavorite = !_isFavorite;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: _isFavorite ? Colors.red : Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
@@ -355,7 +421,7 @@ class _FoodScreenState extends State<FoodScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  timeText,
+                  widget.timeText,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -374,7 +440,7 @@ class _FoodScreenState extends State<FoodScreen> {
               radius: 18,
               backgroundColor: Colors.grey.shade200,
               child: Text(
-                logoText,
+                widget.logoText,
                 style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
@@ -391,7 +457,7 @@ class _FoodScreenState extends State<FoodScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          title,
+                          widget.title,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -402,7 +468,7 @@ class _FoodScreenState extends State<FoodScreen> {
                       Row(
                         children: [
                           Text(
-                            rating,
+                            widget.rating,
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -418,7 +484,7 @@ class _FoodScreenState extends State<FoodScreen> {
                           const Icon(Icons.pedal_bike, size: 14, color: Colors.grey),
                           const SizedBox(width: 4),
                           Text(
-                            deliveryFee,
+                            widget.deliveryFee,
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -719,9 +785,15 @@ class _FoodProfileBodyState extends State<_FoodProfileBody> {
                           _buildCard(
                             icon: Icons.language_outlined,
                             title: 'My language',
-                            subtitle: 'English',
+                            subtitle: LanguageScreen.languageMap[RoadyGoRiderApp.of(context).selectedLanguage] ?? RoadyGoRiderApp.of(context).selectedLanguage,
                             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                             iconColor: Colors.grey.shade600,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const LanguageScreen()),
+                              );
+                            },
                           ),
                           const SizedBox(height: 12),
                           _buildCard(

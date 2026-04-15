@@ -24,135 +24,123 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  void _showCustomTipDialog() {
-    final TextEditingController controller = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Custom Tip'),
-          content: TextField(
-            controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              hintText: 'Enter custom amount',
-              prefixText: '\$ ',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  setState(() {
-                    _selectedTipAmount = '\$${controller.text}';
-                  });
-                }
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showTipBottomSheet() {
     final noTipStr = context.tr(AppStrings.noTip);
-    // Include the standard options + custom
     final tipOptions = [
       noTipStr,
-      '\$1',
-      '\$2',
-      '\$3',
-      '\$4',
-      '\$5',
-      'Custom'
+      '5%',
+      '10%',
+      '20%',
+      '30%'
     ];
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (BuildContext context) {
-        final theme = Theme.of(context);
-        final dividerColor = theme.brightness == Brightness.dark
-            ? const Color(0xFF1E293B)
-            : const Color(0xFFE5E7EB);
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final theme = Theme.of(context);
+            final isDark = theme.brightness == Brightness.dark;
             
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.tr(AppStrings.defaultTips),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Divider(height: 1, color: dividerColor),
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: tipOptions.length,
-                  separatorBuilder: (context, index) => Divider(height: 1, color: dividerColor),
-                  itemBuilder: (context, index) {
-                    final tip = tipOptions[index];
-                    final currentTipStr = _selectedTipAmount ?? noTipStr;
-                    
-                    // The 'Custom' option logic
-                    final isCustomSelected = tip == 'Custom' && 
-                                           !['\$1', '\$2', '\$3', '\$4', '\$5', noTipStr].contains(currentTipStr);
-                                           
-                    final isSelected = tip == currentTipStr || isCustomSelected;
-                    
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                      title: Text(
-                        tip,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? theme.primaryColor : theme.textTheme.bodyLarge?.color,
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: theme.textTheme.bodyLarge?.color,
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                      trailing: isSelected
-                          ? Icon(Icons.check, color: theme.primaryColor)
-                          : null,
-                      onTap: () {
-                        Navigator.pop(context);
-                        if (tip == 'Custom') {
-                          _showCustomTipDialog();
-                        } else {
-                          setState(() {
-                            _selectedTipAmount = tip == noTipStr ? null : tip;
-                          });
-                        }
-                      },
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Select default tip size',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      child: Row(
+                        children: tipOptions.map((tip) {
+                          final currentTipStr = _selectedTipAmount ?? noTipStr;
+                          final isSelected = tip == currentTipStr;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 12.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedTipAmount = tip == noTipStr ? null : tip;
+                                });
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: isSelected 
+                                      ? (isDark ? Colors.white : Colors.black)
+                                      : (isDark ? const Color(0xFF1E293B) : Colors.white),
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: isSelected ? [] : [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ],
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Colors.transparent
+                                        : (isDark ? const Color(0xFF334155) : Colors.grey.withValues(alpha: 0.2)),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  tip,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected
+                                        ? (isDark ? Colors.black : Colors.white)
+                                        : theme.textTheme.bodyLarge?.color,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-            ],
-          ),
+            );
+          }
         );
       },
     );

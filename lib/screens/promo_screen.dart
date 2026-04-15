@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../app/localization.dart';
 import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
+import 'coupons_screen.dart';
+import 'invite_friends_screen.dart';
 
 class PromoScreen extends StatelessWidget {
   const PromoScreen({super.key});
@@ -23,13 +25,25 @@ class PromoScreen extends StatelessWidget {
             SimpleRow(
               icon: Icons.confirmation_number_outlined,
               label: context.tr(AppStrings.yourCoupons),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const CouponsScreen(),
+                  ),
+                );
+              },
             ),
             Divider(height: 1, color: dividerColor),
             SimpleRow(
               icon: Icons.person_add_alt_outlined,
               label: context.tr(AppStrings.inviteFriends),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const InviteFriendsScreen(),
+                  ),
+                );
+              },
             ),
             Divider(height: 1, color: dividerColor),
             const Spacer(),
