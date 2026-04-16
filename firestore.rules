@@ -10,10 +10,10 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Allow authenticated users to request rides
+    // Allow authenticated users and guests to request rides
     match /rides/{rideId} {
-      allow create: if request.auth != null;
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if true;
+      allow read, update, delete: if true;
     }
     
     // Allow anyone to view notifications
