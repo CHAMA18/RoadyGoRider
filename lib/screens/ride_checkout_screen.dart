@@ -209,7 +209,7 @@ iconData: Icons.local_taxi_rounded,
 iconColor: const Color(0xFFF97316),
 onTap: () => setState(() => _selectedTaxiTier = _TaxiTier.standard),
 ),
-const SizedBox(height: 12),
+const SizedBox(height: 8),
 _VehicleCard(
 selected: _selectedTaxiTier == _TaxiTier.comfort,
 title: 'Comfort',
@@ -221,7 +221,7 @@ iconData: Icons.directions_car_rounded,
 iconColor: const Color(0xFF9CA3AF),
 onTap: () => setState(() => _selectedTaxiTier = _TaxiTier.comfort),
 ),
-const SizedBox(height: 12),
+const SizedBox(height: 8),
 _VehicleCard(
 selected: _selectedTaxiTier == _TaxiTier.vip,
 title: 'Premium',
@@ -233,7 +233,6 @@ iconData: Icons.directions_car_rounded,
 iconColor: const Color(0xFF9CA3AF),
 onTap: () => setState(() => _selectedTaxiTier = _TaxiTier.vip),
 ),
-const SizedBox(height: 24),
 ];
 case _ServiceType.delivery:
 return [
@@ -248,7 +247,7 @@ iconData: Icons.pedal_bike_rounded,
 iconColor: const Color(0xFFF97316),
 onTap: () => setState(() => _selectedDeliveryTier = _DeliveryTier.bicycleCourier),
 ),
-const SizedBox(height: 12),
+const SizedBox(height: 8),
 _VehicleCard(
 selected: _selectedDeliveryTier == _DeliveryTier.motorcycleCourier,
 title: 'Motorcycle Courier',
@@ -260,7 +259,6 @@ iconData: Icons.two_wheeler_rounded,
 iconColor: const Color(0xFF9CA3AF),
 onTap: () => setState(() => _selectedDeliveryTier = _DeliveryTier.motorcycleCourier),
 ),
-const SizedBox(height: 24),
 ];
 case _ServiceType.cargo:
 return [
@@ -275,7 +273,7 @@ iconData: Icons.airport_shuttle_rounded,
 iconColor: const Color(0xFFF97316),
 onTap: () => setState(() => _selectedCargoTier = _CargoTier.minivan),
 ),
-const SizedBox(height: 12),
+const SizedBox(height: 8),
 _VehicleCard(
 selected: _selectedCargoTier == _CargoTier.panelVan,
 title: 'Panel Van',
@@ -287,7 +285,7 @@ iconData: Icons.local_shipping_rounded,
 iconColor: const Color(0xFF9CA3AF),
 onTap: () => setState(() => _selectedCargoTier = _CargoTier.panelVan),
 ),
-const SizedBox(height: 12),
+const SizedBox(height: 8),
 _VehicleCard(
 selected: _selectedCargoTier == _CargoTier.lightTruck,
 title: 'Light Truck',
@@ -299,7 +297,6 @@ iconData: Icons.fire_truck_rounded,
 iconColor: const Color(0xFF9CA3AF),
 onTap: () => setState(() => _selectedCargoTier = _CargoTier.lightTruck),
 ),
-const SizedBox(height: 24),
 ];
 }
 }
@@ -461,6 +458,9 @@ else
 Align(
 alignment: Alignment.bottomCenter,
 child: Container(
+constraints: BoxConstraints(
+  maxHeight: MediaQuery.of(context).size.height * 0.48,
+),
 decoration: BoxDecoration(
 color: const Color(0xFFF8FAFC),
 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -477,7 +477,7 @@ top: false,
 child: Column(
 mainAxisSize: MainAxisSize.min,
 children: [
-const SizedBox(height: 12),
+const SizedBox(height: 8),
 Container(
 width: 40,
 height: 4,
@@ -486,7 +486,7 @@ color: const Color(0xFFCBD5E1),
 borderRadius: BorderRadius.circular(2),
 ),
 ),
-const SizedBox(height: 16),
+const SizedBox(height: 12),
 Padding(
 padding: const EdgeInsets.symmetric(horizontal: 16),
 child: _AddressInputs(
@@ -496,7 +496,7 @@ onPickupTap: () => _pickPlace(pickup: true),
 onDropoffTap: () => _pickPlace(pickup: false),
 ),
 ),
-const SizedBox(height: 16),
+const SizedBox(height: 12),
 // Service Type Tabs
 Padding(
 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -546,16 +546,16 @@ color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
 ),
 ),
 ),
-const SizedBox(height: 16),
-SizedBox(
-height: 320,
+const SizedBox(height: 8),
+Flexible(
 child: ListView(
+shrinkWrap: true,
 padding: const EdgeInsets.symmetric(horizontal: 16),
 children: _buildVehicleOptions(),
 ),
 ),
 Padding(
-padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
 child: Row(
 children: [
 Expanded(
@@ -775,7 +775,7 @@ mapToolbarEnabled: true,
 compassEnabled: true,
 buildingsEnabled: false,
 indoorViewEnabled: false,
-padding: const EdgeInsets.only(bottom: 480, top: 80),
+padding: const EdgeInsets.only(bottom: 340, top: 80),
 );
 }
 }
@@ -967,7 +967,7 @@ class _AddressInputs extends StatelessWidget {
             onTap: onPickupTap,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Container(
@@ -1013,7 +1013,7 @@ class _AddressInputs extends StatelessWidget {
             onTap: onDropoffTap,
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Container(
@@ -1092,7 +1092,7 @@ Widget build(BuildContext context) {
 return GestureDetector(
 onTap: onTap,
 child: Container(
-padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7.5),
 decoration: BoxDecoration(
 color: Colors.white,
 borderRadius: BorderRadius.circular(12),
@@ -1115,13 +1115,13 @@ mainAxisAlignment: MainAxisAlignment.spaceBetween,
 children: [
 Row(
 children: [
-Icon(iconData, color: iconColor, size: 20),
+Icon(iconData, color: iconColor, size: 15),
 const SizedBox(width: 8),
 Text(
 title,
 style: const TextStyle(
 color: Color(0xFF1A1A1A),
-fontSize: 18,
+fontSize: 14,
 fontWeight: FontWeight.w700,
 ),
 ),
@@ -1131,20 +1131,21 @@ Text(
 price,
 style: const TextStyle(
 color: Color(0xFF1A1A1A),
-fontSize: 18,
+fontSize: 14,
 fontWeight: FontWeight.w800,
 ),
 ),
 ],
 ),
-const SizedBox(height: 10),
+if (selected) ...[
+const SizedBox(height: 7.5),
 Row(
 crossAxisAlignment: CrossAxisAlignment.center,
 children: [
 Image.asset(
 assetPath,
-width: 90,
-height: 48,
+width: 67.5,
+height: 36,
 fit: BoxFit.contain,
 ),
 const SizedBox(width: 12),
@@ -1156,7 +1157,7 @@ if (driverName != null) ...[
 Row(
 children: [
 const CircleAvatar(
-radius: 12,
+radius: 9,
 backgroundImage: AssetImage('assets/images/PHOTO-2026-03-27-20-08-38.jpg'),
 ),
 const SizedBox(width: 6),
@@ -1170,7 +1171,7 @@ fontWeight: FontWeight.w600,
 ),
 ],
 ),
-const SizedBox(height: 4),
+const SizedBox(height: 3),
 ],
 Row(
 children: [
@@ -1182,7 +1183,7 @@ Text(
 subtitle,
 style: const TextStyle(
 color: Color(0xFF6B7280),
-fontSize: 12,
+fontSize: 11,
 fontWeight: FontWeight.w500,
 ),
 ),
@@ -1195,12 +1196,13 @@ Text(
 timeAway,
 style: const TextStyle(
 color: Color(0xFF6B7280),
-fontSize: 13,
+fontSize: 11,
 fontWeight: FontWeight.w500,
 ),
 ),
 ],
 ),
+],
 ],
 ),
 ),

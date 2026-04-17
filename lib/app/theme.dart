@@ -5,8 +5,8 @@ class AppColors {
   static const Color slate = Color(0xFF415A77);
   static const Color snow = Color(0xFFF8FAFC);
   static const Color cloud = Color(0xFFE2E8F0);
-  static const Color brand = Color(0xFFE53935);
-  static const Color coral = Color(0xFFFF7A59);
+  static const Color brand = Color(0xFFF57C00); // Updated to match logo orange
+  static const Color coral = Color(0xFFFFB74D); // Updated to lighter orange
   static const Color gold = Color(0xFFFFB703);
   static const Color mint = Color(0xFF2A9D8F);
 }
