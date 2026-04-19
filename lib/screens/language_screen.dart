@@ -97,6 +97,7 @@ class _LanguageScreenState extends State<LanguageScreen> {
                               onTap: () {
                                 setState(() {
                                   _selectedLanguage = languageKey;
+                                  themeScope.setSelectedLanguage(languageKey);
                                 });
                               },
                               borderRadius: BorderRadius.vertical(
@@ -145,19 +146,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _selectedLanguage != _currentAppLanguage
-                      ? () {
-                          themeScope.setSelectedLanguage(_selectedLanguage);
-                          Navigator.of(context).maybePop();
-                        }
-                      : null,
+                  onPressed: () => Navigator.of(context).maybePop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _selectedLanguage != _currentAppLanguage 
-                        ? const Color(0xFFFF5A00) 
-                        : const Color(0xFFE2E8F0),
-                    foregroundColor: _selectedLanguage != _currentAppLanguage 
-                        ? Colors.white 
-                        : const Color(0xFF94A3B8),
+                    backgroundColor: const Color(0xFFFF5A00),
+                    foregroundColor: Colors.white,
                     disabledBackgroundColor: const Color(0xFFE2E8F0),
                     disabledForegroundColor: const Color(0xFF94A3B8),
                     elevation: 0,

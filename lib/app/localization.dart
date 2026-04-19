@@ -491,6 +491,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Maintenant',
     AppStrings.cash: 'Especes',
     AppStrings.continueLabel: 'Continuer',
+    AppStrings.save: 'Enregistrer',
   },
   'German': {
     AppStrings.settings: 'Einstellungen',
@@ -534,6 +535,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Jetzt',
     AppStrings.cash: 'Bar',
     AppStrings.continueLabel: 'Weiter',
+    AppStrings.save: 'Speichern',
   },
   'Spanish': {
     AppStrings.settings: 'Configuracion',
@@ -574,6 +576,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Ahora',
     AppStrings.cash: 'Efectivo',
     AppStrings.continueLabel: 'Continuar',
+    AppStrings.save: 'Guardar',
   },
   'Italian': {
     AppStrings.settings: 'Impostazioni',
@@ -612,6 +615,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Ora',
     AppStrings.cash: 'Contanti',
     AppStrings.continueLabel: 'Continua',
+    AppStrings.save: 'Salva',
   },
   'Portuguese': {
     AppStrings.settings: 'Definicoes',
@@ -650,6 +654,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Agora',
     AppStrings.cash: 'Dinheiro',
     AppStrings.continueLabel: 'Continuar',
+    AppStrings.save: 'Salvar',
   },
   'Dutch': {
     AppStrings.settings: 'Instellingen',
@@ -681,6 +686,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.fromPrice: 'Vanaf {price}',
     AppStrings.now: 'Nu',
     AppStrings.cash: 'Contant',
+    AppStrings.save: 'Opslaan',
   },
   'Polish': {
     AppStrings.settings: 'Ustawienia',
@@ -711,6 +717,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Teraz',
     AppStrings.cash: 'Gotowka',
     AppStrings.continueLabel: 'Kontynuuj',
+    AppStrings.save: 'Zapisz',
   },
   'Greek': {
     AppStrings.settings: 'Rythmiseis',
@@ -741,6 +748,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Tora',
     AppStrings.cash: 'Metrita',
     AppStrings.continueLabel: 'Synexeia',
+    AppStrings.save: 'Αποθήκευση',
   },
   'Romanian': {
     AppStrings.settings: 'Setari',
@@ -771,6 +779,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Acum',
     AppStrings.cash: 'Numerar',
     AppStrings.continueLabel: 'Continua',
+    AppStrings.save: 'Salvează',
   },
   'Turkish': {
     AppStrings.settings: 'Ayarlar',
@@ -802,6 +811,7 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Simdi',
     AppStrings.cash: 'Nakit',
     AppStrings.continueLabel: 'Devam et',
+    AppStrings.save: 'Kaydet',
   },
   'Russian': {
     AppStrings.settings: 'Nastroiki',
@@ -833,5 +843,6 @@ const Map<String, Map<String, String>> _translations = {
     AppStrings.now: 'Seichas',
     AppStrings.cash: 'Nalichnye',
     AppStrings.continueLabel: 'Prodolzhit',
+    AppStrings.save: 'Сохранить',
   },
 };

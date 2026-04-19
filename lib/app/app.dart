@@ -1,13 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../screens/rider_experience.dart';
 import '../widgets/common_widgets.dart';
 import 'localization.dart';
 import 'theme.dart';
 
 class RoadyGoRiderApp extends StatefulWidget {
-  const RoadyGoRiderApp({super.key});
+  const RoadyGoRiderApp({
+    super.key,
+    this.initialLanguage = 'English',
+    this.initialThemeMode = ThemeMode.light,
+  });
+
+  final String initialLanguage;
+  final ThemeMode initialThemeMode;
 
   @override
   State<RoadyGoRiderApp> createState() => _RoadyGoRiderAppState();
@@ -21,15 +30,37 @@ class RoadyGoRiderApp extends StatefulWidget {
 }
 
 class _RoadyGoRiderAppState extends State<RoadyGoRiderApp> {
-  ThemeMode _themeMode = ThemeMode.light;
-  String _selectedLanguage = 'English';
+  late ThemeMode _themeMode;
+  late String _selectedLanguage;
 
-  void _setThemeMode(ThemeMode mode) {
-    setState(() => _themeMode = mode);
+  @override
+  void initState() {
+    super.initState();
+    _themeMode = widget.initialThemeMode;
+    _selectedLanguage = widget.initialLanguage;
   }
 
-  void _setSelectedLanguage(String language) {
+  Future<void> _setThemeMode(ThemeMode mode) async {
+    setState(() => _themeMode = mode);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String themeStr = 'light';
+      if (mode == ThemeMode.dark) themeStr = 'dark';
+      if (mode == ThemeMode.system) themeStr = 'system';
+      await prefs.setString('theme_mode', themeStr);
+    } catch (e) {
+      debugPrint('Failed to save theme: \$e');
+    }
+  }
+
+  Future<void> _setSelectedLanguage(String language) async {
     setState(() => _selectedLanguage = language);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('selected_language', language);
+    } catch (e) {
+      debugPrint('Failed to save language: \$e');
+    }
   }
 
   @override
