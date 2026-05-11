@@ -1373,7 +1373,6 @@ fontWeight: FontWeight.w600,
 }
 
 class _PreferenceButton extends StatelessWidget {
-<<<<<<< HEAD
 const _PreferenceButton({
 required this.icon,
 required this.label,
@@ -1381,12 +1380,6 @@ this.useChip = false,
 this.onTap,
 this.onClear,
 });
-=======
-  const _PreferenceButton({
-    required this.icon,
-    required this.label,
-  });
->>>>>>> 628578a (latest changes)
 
 final IconData icon;
 final String label;
