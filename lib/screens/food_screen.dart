@@ -756,7 +756,7 @@ class _FoodProfileBodyState extends State<_FoodProfileBody> {
                                   _isHealthyLifestyleActive = v;
                                 });
                               },
-                              activeColor: Colors.black,
+                              activeThumbColor: Colors.black,
                             ),
                             iconColor: Colors.grey.shade600,
                           ),

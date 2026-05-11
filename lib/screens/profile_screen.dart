@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 import 'profile_edit_screen.dart';
 import 'saved_places_screen.dart';

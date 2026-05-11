@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../app/localization.dart';
-import '../app/theme.dart';
 import '../widgets/common_widgets.dart';
 
 class AboutWalletScreen extends StatelessWidget {

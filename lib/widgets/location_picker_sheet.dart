@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../app/theme.dart';
-import '../app/localization.dart';
 import 'schedule_ride_sheet.dart';
 import 'package:intl/intl.dart';
 

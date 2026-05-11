@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/localization.dart';
-import '../app/theme.dart';
 import 'home_map_screen.dart';
 import 'ride_checkout_screen.dart';
 import 'wallet_screen.dart';

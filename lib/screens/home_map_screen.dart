@@ -1,19 +1,15 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/localization.dart';
 import '../app/theme.dart';
-import '../widgets/common_widgets.dart';
 import '../widgets/location_picker_sheet.dart';
 import 'food_screen.dart';
 import 'notifications_screen.dart';
 import 'orders_empty_screen.dart';
 import 'ride_checkout_screen.dart';
-import 'ride_home_screen.dart';
 import 'wallet_screen.dart';
 import 'profile_screen.dart';
 import 'settings_screen.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'home_map_screen.dart';
-import 'ride_home_screen.dart';
 
 class OrderNowSplashScreen extends StatefulWidget {
   const OrderNowSplashScreen({super.key, required this.onLogout});
